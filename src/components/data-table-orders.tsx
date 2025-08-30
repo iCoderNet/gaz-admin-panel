@@ -79,11 +79,12 @@ import {
   IconCurrencyDollar,
   IconEye,
   IconPencil,
+  IconCreditCard,
 } from "@tabler/icons-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/api"
 
-// Order schemas
+// Order schemas with fixed cargo_price validation
 const orderAzotSchema = z.object({
   id: z.number().optional(),
   order_id: z.number(),
@@ -105,6 +106,18 @@ const orderAzotSchema = z.object({
   }),
   created_at: z.string().optional().nullable(),
   updated_at: z.string().optional().nullable(),
+  azot: z.object({
+    id: z.number(),
+    title: z.string(),
+    type: z.string(),
+    image: z.string().nullable(),
+    description: z.string().nullable(),
+    country: z.string().nullable(),
+    status: z.string(),
+    created_at: z.string().nullable(),
+    updated_at: z.string().nullable(),
+    image_url: z.string().nullable(),
+  }).optional(),
 })
 
 const orderAccessorySchema = z.object({
@@ -151,6 +164,20 @@ const orderServiceSchema = z.object({
   }),
   created_at: z.string().optional().nullable(),
   updated_at: z.string().optional().nullable(),
+  service: z.object({
+    id: z.number(),
+    name: z.string(),
+    price: z.union([z.number(), z.string()]).transform((val) => {
+      if (typeof val === "string") {
+        const parsed = parseFloat(val);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return val;
+    }),
+    status: z.string(),
+    created_at: z.string().nullable(),
+    updated_at: z.string().nullable(),
+  }).optional(),
 })
 
 const userSchema = z.object({
@@ -159,6 +186,11 @@ const userSchema = z.object({
   phone: z.string().nullable().optional(),
   username: z.string().nullable().optional(),
   full_name: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  role: z.string().optional(),
+  status: z.string().optional(),
+  created_at: z.string().nullable().optional(),
+  updated_at: z.string().nullable().optional(),
 })
 
 const promocodeSchema = z.object({
@@ -172,14 +204,17 @@ const orderSchema = z.object({
   id: z.number().optional(),
   user_id: z.number(),
   promocode_id: z.number().nullable().optional(),
-  promo_price: z.union([z.number(), z.string()]).transform((val) => {
+  payment_type: z.string().nullable().optional(),
+  promo_price: z.union([z.number(), z.string(), z.null()]).transform((val) => {
+    if (val === null || val === undefined) return 0;
     if (typeof val === "string") {
       const parsed = parseFloat(val);
       return isNaN(parsed) ? 0 : parsed;
     }
     return val;
   }),
-  cargo_price: z.union([z.number(), z.string()]).transform((val) => {
+  cargo_price: z.union([z.number(), z.string(), z.null()]).transform((val) => {
+    if (val === null || val === undefined) return 0;
     if (typeof val === "string") {
       const parsed = parseFloat(val);
       return isNaN(parsed) ? 0 : parsed;
@@ -200,10 +235,12 @@ const orderSchema = z.object({
     }
     return val;
   }),
+  price_type: z.string().nullable().optional(),
   phone: z.string().nullable().optional(),
   address: z.string().nullable().optional(),
   comment: z.string().nullable().optional(),
   status: z.enum(["new", "pending", "accepted", "rejected", "completed"]),
+  status_text: z.string().optional(),
   created_at: z.string().optional().nullable(),
   updated_at: z.string().optional().nullable(),
   // Relations
@@ -244,7 +281,6 @@ const orderApiResponseSchema = z.object({
 
 type Order = z.infer<typeof orderSchema>
 type OrderFormData = z.infer<typeof orderFormSchema>
-// type OrderApiResponse = z.infer<typeof orderApiResponseSchema>
 
 // Global handlers for view, edit and delete
 let globalHandleView: (order: Order) => void = () => {};
@@ -262,9 +298,26 @@ const getStatusColor = (status: string) => {
     case "rejected":
       return "bg-red-100 text-red-800 border-red-300"
     case "completed":
-      return "bg-gray-100 text-gray-800 border-gray-300"
+      return "bg-emerald-100 text-emerald-800 border-emerald-300"
     default:
       return "bg-gray-100 text-gray-800 border-gray-300"
+  }
+}
+
+const getPaymentTypeColor = (paymentType: string | null) => {
+  if (!paymentType) return "bg-gray-100 text-gray-600 border-gray-300"
+  
+  switch (paymentType.toLowerCase()) {
+    case "nalichi":
+    case "cash":
+      return "bg-green-100 text-green-700 border-green-300"
+    case "card":
+    case "karta":
+      return "bg-blue-100 text-blue-700 border-blue-300"
+    case "online":
+      return "bg-purple-100 text-purple-700 border-purple-300"
+    default:
+      return "bg-orange-100 text-orange-700 border-orange-300"
   }
 }
 
@@ -342,13 +395,31 @@ const columns: ColumnDef<Order>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "status",
+    accessorKey: "status_text",
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.status;
+      const statusText = row.original.status_text;
       return (
         <Badge className={getStatusColor(status)}>
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {statusText || status.charAt(0).toUpperCase() + status.slice(1)}
+        </Badge>
+      );
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "payment_type",
+    header: "Payment",
+    cell: ({ row }) => {
+      const paymentType = row.original.payment_type;
+      if (!paymentType) {
+        return <Badge className="bg-gray-100 text-gray-500 border-gray-300">Not Set</Badge>;
+      }
+      return (
+        <Badge className={getPaymentTypeColor(paymentType)}>
+          <IconCreditCard className="h-3 w-3 mr-1" />
+          {paymentType}
         </Badge>
       );
     },
@@ -554,7 +625,8 @@ export function OrderDataTable() {
         const parsed = orderApiResponseSchema.safeParse(response.data)
         
         if (!parsed.success) {
-          throw new Error(`Invalid API response: ${parsed.error.message}`)
+          console.error("Validation errors:", parsed.error.issues)
+          throw new Error(`Invalid API response: ${JSON.stringify(parsed.error.format())}`)
         }
         
         if (parsed.data.success) {
@@ -584,7 +656,7 @@ export function OrderDataTable() {
     try {
       if (editingOrder?.id) {
         // Only update status for orders
-        const updateData = { status: formData.status };
+        const updateData = { status: formData.status, payment_type: formData.payment_type };
         const response = await api.put(`/orders/${editingOrder.id}`, updateData);
         console.log('Update response:', response.data);
         toast.success("Order status updated successfully");
@@ -655,11 +727,11 @@ export function OrderDataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="new">Не Оформлен</SelectItem>
+              <SelectItem value="pending">Оформлен</SelectItem>
+              <SelectItem value="accepted">Принято</SelectItem>
+              <SelectItem value="rejected">Отклонено</SelectItem>
+              <SelectItem value="completed">Завершено</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -683,6 +755,8 @@ export function OrderDataTable() {
                   >
                     {column.id === "id" ? "Order ID" : 
                      column.id === "user" ? "Customer" :
+                     column.id === "status_text" ? "Status" :
+                     column.id === "payment_type" ? "Payment" :
                      column.id === "all_price" ? "Subtotal" :
                      column.id === "total_price" ? "Total" :
                      column.id.charAt(0).toUpperCase() + column.id.slice(1)}
@@ -818,7 +892,7 @@ export function OrderDataTable() {
 
       {/* View Order Details Drawer */}
       <Drawer open={viewDrawerOpen} onOpenChange={setViewDrawerOpen} direction={isMobile ? "bottom" : "right"}>
-        <DrawerContent className="max-w-2xl">
+        <DrawerContent className="max-w-full">
           <DrawerHeader>
             <DrawerTitle>Order Details #{viewingOrder?.id}</DrawerTitle>
             <DrawerDescription>Complete order information and items</DrawerDescription>
@@ -839,7 +913,16 @@ export function OrderDataTable() {
                       <Label className="text-sm text-muted-foreground">Status</Label>
                       <div className="mt-1">
                         <Badge className={getStatusColor(viewingOrder.status)}>
-                          {viewingOrder.status.charAt(0).toUpperCase() + viewingOrder.status.slice(1)}
+                          {viewingOrder.status_text || viewingOrder.status.charAt(0).toUpperCase() + viewingOrder.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Payment Type</Label>
+                      <div className="mt-1">
+                        <Badge className={getPaymentTypeColor(viewingOrder.payment_type || null)}>
+                          <IconCreditCard className="h-3 w-3 mr-1" />
+                          {viewingOrder.payment_type || "Not Set"}
                         </Badge>
                       </div>
                     </div>
@@ -847,6 +930,12 @@ export function OrderDataTable() {
                       <Label className="text-sm text-muted-foreground">Created Date</Label>
                       <div className="mt-1 text-sm">
                         {viewingOrder.created_at ? new Date(viewingOrder.created_at).toLocaleString() : "N/A"}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Last Updated</Label>
+                      <div className="mt-1 text-sm">
+                        {viewingOrder.updated_at ? new Date(viewingOrder.updated_at).toLocaleString() : "N/A"}
                       </div>
                     </div>
                   </CardContent>
@@ -885,6 +974,14 @@ export function OrderDataTable() {
                           </div>
                         </div>
                       )}
+                      {viewingOrder.user.role && (
+                        <div>
+                          <Label className="text-sm text-muted-foreground">Role</Label>
+                          <div className="mt-1 text-sm capitalize">
+                            {viewingOrder.user.role}
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 )}
@@ -900,7 +997,7 @@ export function OrderDataTable() {
                   <CardContent className="space-y-4">
                     {viewingOrder.phone && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Phone</Label>
+                        <Label className="text-sm text-muted-foreground">Delivery Phone</Label>
                         <div className="mt-1 text-sm flex items-center gap-1">
                           <IconPhone className="h-3 w-3" />
                           {viewingOrder.phone}
@@ -909,7 +1006,7 @@ export function OrderDataTable() {
                     )}
                     {viewingOrder.address && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Address</Label>
+                        <Label className="text-sm text-muted-foreground">Delivery Address</Label>
                         <div className="mt-1 text-sm">
                           {viewingOrder.address}
                         </div>
@@ -917,10 +1014,15 @@ export function OrderDataTable() {
                     )}
                     {viewingOrder.comment && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Comment</Label>
-                        <div className="mt-1 text-sm">
+                        <Label className="text-sm text-muted-foreground">Order Comment</Label>
+                        <div className="mt-1 text-sm bg-muted p-2 rounded-md">
                           {viewingOrder.comment}
                         </div>
+                      </div>
+                    )}
+                    {!viewingOrder.phone && !viewingOrder.address && !viewingOrder.comment && (
+                      <div className="text-sm text-muted-foreground italic">
+                        No delivery information provided
                       </div>
                     )}
                   </CardContent>
@@ -991,15 +1093,29 @@ export function OrderDataTable() {
                       {/* Azots */}
                       {viewingOrder.azots && viewingOrder.azots.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2">Azots</h4>
+                          <h4 className="font-medium text-sm mb-2 text-blue-600">Azots</h4>
                           <div className="space-y-2">
                             {viewingOrder.azots.map((azot, index) => (
-                              <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
-                                <div>
-                                  <span className="text-sm">Azot ID: {azot.azot_id}</span>
-                                  <span className="text-xs text-muted-foreground ml-2">x{azot.count}</span>
+                              <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">
+                                    {azot.azot?.title || `Azot #${azot.azot_id}`}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground mt-1">
+                                    Type: {azot.azot?.type} • Quantity: {azot.count}
+                                  </div>
+                                  {azot.azot?.country && (
+                                    <div className="text-xs text-muted-foreground">
+                                      Country: {azot.azot.country}
+                                    </div>
+                                  )}
                                 </div>
-                                <span className="text-sm font-medium">${azot.total_price.toFixed(2)}</span>
+                                <div className="text-right">
+                                  <div className="text-sm font-medium">${azot.total_price.toFixed(2)}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    ${azot.price.toFixed(2)} each
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -1009,15 +1125,24 @@ export function OrderDataTable() {
                       {/* Accessories */}
                       {viewingOrder.accessories && viewingOrder.accessories.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2">Accessories</h4>
+                          <h4 className="font-medium text-sm mb-2 text-purple-600">Accessories</h4>
                           <div className="space-y-2">
                             {viewingOrder.accessories.map((accessory, index) => (
-                              <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
-                                <div>
-                                  <span className="text-sm">Accessory ID: {accessory.accessory_id}</span>
-                                  <span className="text-xs text-muted-foreground ml-2">x{accessory.count}</span>
+                              <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">
+                                    Accessory #{accessory.accessory_id}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Quantity: {accessory.count}
+                                  </div>
                                 </div>
-                                <span className="text-sm font-medium">${accessory.total_price.toFixed(2)}</span>
+                                <div className="text-right">
+                                  <div className="text-sm font-medium">${accessory.total_price.toFixed(2)}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    ${accessory.price.toFixed(2)} each
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -1027,15 +1152,24 @@ export function OrderDataTable() {
                       {/* Services */}
                       {viewingOrder.services && viewingOrder.services.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2">Services</h4>
+                          <h4 className="font-medium text-sm mb-2 text-green-600">Services</h4>
                           <div className="space-y-2">
                             {viewingOrder.services.map((service, index) => (
-                              <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
-                                <div>
-                                  <span className="text-sm">Service ID: {service.additional_service_id}</span>
-                                  <span className="text-xs text-muted-foreground ml-2">x{service.count}</span>
+                              <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">
+                                    {service.service?.name || `Service #${service.additional_service_id}`}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Quantity: {service.count}
+                                  </div>
                                 </div>
-                                <span className="text-sm font-medium">${service.total_price.toFixed(2)}</span>
+                                <div className="text-right">
+                                  <div className="text-sm font-medium">${service.total_price.toFixed(2)}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    ${service.price.toFixed(2)} each
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -1051,16 +1185,16 @@ export function OrderDataTable() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <IconTag className="h-5 w-5" />
-                        Promocode
+                        Promocode Applied
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center bg-orange-50 p-3 rounded-lg border border-orange-200">
                         <div>
-                          <div className="font-mono text-sm">{viewingOrder.promocode.promocode}</div>
-                          <div className="text-xs text-muted-foreground capitalize">{viewingOrder.promocode.type}</div>
+                          <div className="font-mono text-sm font-medium">{viewingOrder.promocode.promocode}</div>
+                          <div className="text-xs text-muted-foreground capitalize">{viewingOrder.promocode.type} discount</div>
                         </div>
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium text-red-600">
                           -${viewingOrder.promocode.amount.toFixed(2)}
                         </div>
                       </div>
@@ -1071,9 +1205,15 @@ export function OrderDataTable() {
             )}
           </div>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
-            </DrawerClose>
+            <div className="flex gap-2">
+              <Button onClick={() => handleEdit(viewingOrder!)} size="sm">
+                <IconPencil className="h-4 w-4 mr-2" />
+                Edit Status
+              </Button>
+              <DrawerClose asChild>
+                <Button variant="outline">Close</Button>
+              </DrawerClose>
+            </div>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -1083,34 +1223,50 @@ export function OrderDataTable() {
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Update Order Status #{editingOrder?.id}</DrawerTitle>
-            <DrawerDescription>Change the order status</DrawerDescription>
+            <DrawerDescription>Change the order status and payment method</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Order Status *</Label>
-              <Select
-                onValueChange={(value) => form.setValue("status", value as "new" | "pending" | "accepted" | "rejected" | "completed")}
-                value={form.watch("status")}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="accepted">Accepted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-              {form.formState.errors.status && (
-                <p className="text-destructive text-sm">{form.formState.errors.status.message}</p>
-              )}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="status">Order Status *</Label>
+                <Select
+                  onValueChange={(value) => form.setValue("status", value as "new" | "pending" | "accepted" | "rejected" | "completed")}
+                  value={form.watch("status")}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="new">Не Оформлен</SelectItem>
+                      <SelectItem value="pending">Оформлен</SelectItem>
+                      <SelectItem value="accepted">Принято</SelectItem>
+                      <SelectItem value="rejected">Отклонено</SelectItem>
+                      <SelectItem value="completed">Завершено</SelectItem>
+
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.status && (
+                  <p className="text-destructive text-sm">{form.formState.errors.status.message}</p>
+                )}
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="payment_type">Payment Type</Label>
+                <input
+                  id="payment_type"
+                  type="text"
+                  placeholder="Enter payment type"
+                  className="border rounded px-3 py-2"
+                  value={form.watch("payment_type") || ""}
+                  onChange={(e) => form.setValue("payment_type", e.target.value)}
+                />
+              </div>
+
             </div>
           </form>
           <DrawerFooter>
             <Button type="submit" onClick={form.handleSubmit(handleSubmit)} disabled={loading}>
-              Update Status
+              {loading ? "Updating..." : "Update Order"}
             </Button>
             <DrawerClose asChild>
               <Button variant="outline">Cancel</Button>
