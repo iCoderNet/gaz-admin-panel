@@ -263,7 +263,7 @@ const columns: ColumnDef<Azot>[] = [
             <div className="flex flex-wrap gap-1">
               {priceTypes.slice(0, 2).map((pt, i) => (
                 <Badge key={i} variant="secondary" className="text-xs">
-                  {pt.name}: ${pt.price}
+                  {pt.name}: {pt.price} ₽
                 </Badge>
               ))}
               {priceTypes.length > 2 && (
@@ -1005,10 +1005,10 @@ export function AzotDataTable() {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor={`price_types.${index}.price`}>
-                              Цена (USD) *
+                              Цена (руб) *
                             </Label>
                             <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"> ₽</span>
                               <Input
                                 type="number"
                                 step="0.01"

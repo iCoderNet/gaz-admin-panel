@@ -229,7 +229,7 @@ const columns: ColumnDef<Accessory>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-medium">
-        ${typeof row.original.price === 'string' ? parseFloat(row.original.price).toFixed(2) : row.original.price.toFixed(2)}
+        {typeof row.original.price === 'string' ? parseFloat(row.original.price).toFixed(0) : row.original.price.toFixed(0)} ₽
       </div>
     ),
     enableSorting: true,

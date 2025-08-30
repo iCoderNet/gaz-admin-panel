@@ -441,7 +441,7 @@ const columns: ColumnDef<Order>[] = [
       <div className="font-medium text-muted-foreground">
         {typeof row.original.all_price === 'string' 
           ? parseFloat(row.original.all_price) 
-          : row.original.all_price} рубль
+          : row.original.all_price} ₽
       </div>
     ),
     enableSorting: true,
@@ -462,7 +462,7 @@ const columns: ColumnDef<Order>[] = [
       <div className="font-bold text-green-600">
         {typeof row.original.total_price === 'string' 
           ? parseFloat(row.original.total_price) 
-          : row.original.total_price} рубль
+          : row.original.total_price} ₽
       </div>
     ),
     enableSorting: true,
@@ -1043,7 +1043,7 @@ export function OrderDataTable() {
                       <span className="text-sm font-medium">
                         {typeof viewingOrder.all_price === 'string' 
                           ? parseFloat(viewingOrder.all_price) 
-                          : viewingOrder.all_price} рубль
+                          : viewingOrder.all_price} ₽
                       </span>
                     </div>
                     {viewingOrder.cargo_price > 0 && (
@@ -1055,7 +1055,7 @@ export function OrderDataTable() {
                         <span className="text-sm">
                           {typeof viewingOrder.cargo_price === 'string' 
                             ? parseFloat(viewingOrder.cargo_price) 
-                            : viewingOrder.cargo_price} рубль
+                            : viewingOrder.cargo_price} ₽
                         </span>
                       </div>
                     )}
@@ -1068,7 +1068,7 @@ export function OrderDataTable() {
                         <span className="text-sm text-red-600">
                           -{typeof viewingOrder.promo_price === 'string' 
                             ? parseFloat(viewingOrder.promo_price) 
-                            : viewingOrder.promo_price} рубль
+                            : viewingOrder.promo_price} ₽
                         </span>
                       </div>
                     )}
@@ -1078,7 +1078,7 @@ export function OrderDataTable() {
                       <span className="font-bold text-green-600">
                         {typeof viewingOrder.total_price === 'string' 
                           ? parseFloat(viewingOrder.total_price) 
-                          : viewingOrder.total_price} рубль
+                          : viewingOrder.total_price} ₽
                       </span>
                     </div>
                   </CardContent>
@@ -1112,9 +1112,9 @@ export function OrderDataTable() {
                                   )}
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">{azot.total_price} рубль</div>
+                                  <div className="text-sm font-medium">{azot.total_price} ₽</div>
                                   <div className="text-xs text-muted-foreground">
-                                    {azot.price} рубль за штуку
+                                    {azot.price} ₽ за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1139,9 +1139,9 @@ export function OrderDataTable() {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">{accessory.total_price} рубль</div>
+                                  <div className="text-sm font-medium">{accessory.total_price} ₽</div>
                                   <div className="text-xs text-muted-foreground">
-                                    {accessory.price} рубль за штуку
+                                    {accessory.price} ₽ за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1166,9 +1166,9 @@ export function OrderDataTable() {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">{service.total_price} рубль</div>
+                                  <div className="text-sm font-medium">{service.total_price} ₽</div>
                                   <div className="text-xs text-muted-foreground">
-                                    {service.price} рубль за штуку
+                                    {service.price} ₽ за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1196,7 +1196,7 @@ export function OrderDataTable() {
                           <div className="text-xs text-muted-foreground capitalize">Скидка {viewingOrder.promocode.type}</div>
                         </div>
                         <div className="text-sm font-medium text-red-600">
-                          -{viewingOrder.promocode.amount} рубль
+                          -{viewingOrder.promocode.amount} ₽
                         </div>
                       </div>
                     </CardContent>

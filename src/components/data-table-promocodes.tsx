@@ -219,7 +219,7 @@ const columns: ColumnDef<Promocode>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-semibold text-green-600">
-        ${typeof row.original.amount === 'string' ? parseFloat(row.original.amount).toFixed(0) : row.original.amount.toFixed(0)}
+        {typeof row.original.amount === 'string' ? parseFloat(row.original.amount).toFixed(0) : row.original.amount.toFixed(0)} ₽
       </div>
     ),
     enableSorting: true,

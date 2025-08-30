@@ -204,7 +204,7 @@ const columns: ColumnDef<Service>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-medium text-green-600">
-        ${typeof row.original.price === 'string' ? parseFloat(row.original.price).toFixed(2) : row.original.price.toFixed(2)}
+        {typeof row.original.price === 'string' ? parseFloat(row.original.price).toFixed(0) : row.original.price.toFixed(0)} ₽
       </div>
     ),
     enableSorting: true,
