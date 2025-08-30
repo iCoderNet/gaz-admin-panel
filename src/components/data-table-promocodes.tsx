@@ -79,7 +79,7 @@ import api from "@/lib/api"
 // Promocode schema
 const promocodeSchema = z.object({
   id: z.number().optional(),
-  promocode: z.string().min(1, "Promocode is required"),
+  promocode: z.string().min(1, "Промокод обязателен"),
   amount: z.union([z.number(), z.string()]).transform((val) => {
     if (typeof val === "string") {
       const parsed = parseFloat(val);
@@ -104,9 +104,9 @@ const promocodeSchema = z.object({
 })
 
 const promocodeFormSchema = promocodeSchema.extend({
-  promocode: z.string().min(1, "Promocode is required").min(3, "Promocode must be at least 3 characters"),
-  amount: z.number().min(0, "Amount must be at least 0"),
-  countable: z.number().min(1, "Countable must be at least 1").optional().nullable(),
+  promocode: z.string().min(1, "Промокод обязателен").min(3, "Промокод должен содержать минимум 3 символа"),
+  amount: z.number().min(0, "Сумма должна быть не менее 0"),
+  countable: z.number().min(1, "Количество использований должно быть не менее 1").optional().nullable(),
 })
 
 // Laravel pagination response schema
@@ -149,7 +149,7 @@ const columns: ColumnDef<Promocode>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -158,7 +158,7 @@ const columns: ColumnDef<Promocode>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -188,7 +188,7 @@ const columns: ColumnDef<Promocode>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Promocode
+        Промокод
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -212,7 +212,7 @@ const columns: ColumnDef<Promocode>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Amount
+        Сумма
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -226,14 +226,14 @@ const columns: ColumnDef<Promocode>[] = [
   },
   {
     accessorKey: "type",
-    header: "Type",
+    header: "Тип",
     cell: ({ row }) => {
       const type = row.original.type;
       return (
         <div className="flex items-center gap-1">
           {type === "countable" ? <IconUsers className="h-4 w-4" /> : <IconCalendar className="h-4 w-4" />}
           <Badge variant={type === "countable" ? "default" : "secondary"} className="capitalize">
-            {type === "countable" ? "Countable" : "Fixed Term"}
+            {type === "countable" ? "Количественный" : "Срочный"}
           </Badge>
         </div>
       );
@@ -242,7 +242,7 @@ const columns: ColumnDef<Promocode>[] = [
   },
   {
     accessorKey: "usage",
-    header: "Usage",
+    header: "Использование",
     cell: ({ row }) => {
       const { type, countable, used_count = 0, start_date, end_date } = row.original;
       
@@ -250,7 +250,7 @@ const columns: ColumnDef<Promocode>[] = [
         return (
           <div className="text-sm">
             <div className="font-medium">{used_count} / {countable || 0}</div>
-            <div className="text-muted-foreground">used</div>
+            <div className="text-muted-foreground">использовано</div>
           </div>
         );
       } else {
@@ -258,14 +258,14 @@ const columns: ColumnDef<Promocode>[] = [
         const start = start_date ? new Date(start_date) : null;
         const end = end_date ? new Date(end_date) : null;
         
-        let status = "Active";
+        let status = "Активен";
         let color = "text-green-600";
         
         if (start && now < start) {
-          status = "Not Started";
+          status = "Не начат";
           color = "text-yellow-600";
         } else if (end && now > end) {
-          status = "Expired";
+          status = "Истек";
           color = "text-red-600";
         }
         
@@ -273,7 +273,7 @@ const columns: ColumnDef<Promocode>[] = [
           <div className="text-sm">
             <div className={`font-medium ${color}`}>{status}</div>
             <div className="text-muted-foreground">
-              {start_date ? new Date(start_date).toLocaleDateString() : 'No start'} - {end_date ? new Date(end_date).toLocaleDateString() : 'No end'}
+              {start_date ? new Date(start_date).toLocaleDateString() : 'Без начала'} - {end_date ? new Date(end_date).toLocaleDateString() : 'Без окончания'}
             </div>
           </div>
         );
@@ -283,14 +283,14 @@ const columns: ColumnDef<Promocode>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       const variant = status === "active" ? "default" : "secondary";
       
       return (
         <Badge variant={variant} className="capitalize">
-          {status}
+          {status === "active" ? "Активен" : "Архив"}
         </Badge>
       );
     },
@@ -303,14 +303,14 @@ const columns: ColumnDef<Promocode>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Дата создания
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => {
       const date = row.original.created_at;
-      return date ? new Date(date).toLocaleDateString() : "N/A";
+      return date ? new Date(date).toLocaleDateString() : "Н/Д";
     },
     enableSorting: true,
   },
@@ -321,19 +321,19 @@ const columns: ColumnDef<Promocode>[] = [
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" className="size-8">
             <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Открыть меню</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => globalHandleEdit(row.original)}>
-            Edit
+            Редактировать
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
             onClick={() => globalHandleDelete(row.original.id!)}
           >
-            Delete
+            Удалить
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -452,7 +452,7 @@ export function PromocodeDataTable() {
         
         if (!parsed.success) {
           console.error('Schema validation error:', parsed.error);
-          throw new Error(`Invalid API response: ${parsed.error.message}`)
+          throw new Error(`Неверный ответ API: ${parsed.error.message}`)
         }
         
         if (parsed.data.success) {
@@ -461,12 +461,12 @@ export function PromocodeDataTable() {
           setTotalRows(parsed.data.data.total)
           setPageCount(parsed.data.data.last_page)
         } else {
-          throw new Error("API returned success: false")
+          throw new Error("API вернул success: false")
         }
       } catch (err: any) {
         console.error('Error fetching promocodes:', err);
-        setError(err.message || "Error fetching promocodes")
-        toast.error(err.message || "Error fetching promocodes")
+        setError(err.message || "Ошибка загрузки промокодов")
+        toast.error(err.message || "Ошибка загрузки промокодов")
         setData([])
       } finally {
         setLoading(false)
@@ -499,27 +499,27 @@ export function PromocodeDataTable() {
       
       console.log('Submit response:', response.data);
       
-      toast.success(editingPromocode ? "Promocode updated successfully" : "Promocode created successfully");
+      toast.success(editingPromocode ? "Промокод успешно обновлен" : "Промокод успешно создан");
       setDrawerOpen(false);
       setEditingPromocode(null);
       fetchPromocodes();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || err.message || "Error saving promocode";
+      const errorMessage = err.response?.data?.message || err.message || "Ошибка сохранения промокода";
       toast.error(errorMessage);
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this promocode?")) return
+    if (!confirm("Вы уверены, что хотите удалить этот промокод?")) return
     try {
       const response = await api.delete(`/promocodes/${id}`)
       console.log('Delete response:', response.data);
-      toast.success("Promocode deleted successfully")
+      toast.success("Промокод успешно удален")
       fetchPromocodes()
     } catch (err: any) {
       console.error('Delete error:', err);
-      const errorMessage = err.response?.data?.message || "Error deleting promocode"
+      const errorMessage = err.response?.data?.message || "Ошибка удаления промокода"
       toast.error(errorMessage)
     }
   }
@@ -548,7 +548,7 @@ export function PromocodeDataTable() {
           <div className="relative flex-1">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search promocodes..."
+              placeholder="Поиск промокодов..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -564,12 +564,12 @@ export function PromocodeDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Статус" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="archive">Archive</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="active">Активен</SelectItem>
+              <SelectItem value="archive">Архив</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -582,12 +582,12 @@ export function PromocodeDataTable() {
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Type" />
+              <SelectValue placeholder="Тип" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="countable">Countable</SelectItem>
-              <SelectItem value="fixed-term">Fixed Term</SelectItem>
+              <SelectItem value="all">Все типы</SelectItem>
+              <SelectItem value="countable">Количественный</SelectItem>
+              <SelectItem value="fixed-term">Срочный</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -596,7 +596,7 @@ export function PromocodeDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Столбцы
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -609,8 +609,12 @@ export function PromocodeDataTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id === "promocode" ? "Promocode" : 
-                     column.id === "created_at" ? "Created At" :
+                    {column.id === "promocode" ? "Промокод" : 
+                     column.id === "created_at" ? "Дата создания" :
+                     column.id === "amount" ? "Сумма" :
+                     column.id === "type" ? "Тип" :
+                     column.id === "usage" ? "Использование" :
+                     column.id === "status" ? "Статус" :
                      column.id.charAt(0).toUpperCase() + column.id.slice(1)}
                   </DropdownMenuCheckboxItem>
                 ))}
@@ -618,7 +622,7 @@ export function PromocodeDataTable() {
           </DropdownMenu>
           <Button onClick={handleAdd}>
             <IconPlus className="mr-2 h-4 w-4" />
-            Add Promocode
+            Добавить промокод
           </Button>
         </div>
       </div>
@@ -673,7 +677,7 @@ export function PromocodeDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No promocodes found.
+                  Промокоды не найдены.
                 </TableCell>
               </TableRow>
             )}
@@ -683,11 +687,11 @@ export function PromocodeDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк выбрано.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -705,7 +709,7 @@ export function PromocodeDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -749,16 +753,16 @@ export function PromocodeDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>{editingPromocode ? "Edit Promocode" : "Create Promocode"}</DrawerTitle>
-            <DrawerDescription>Fill in the promocode details below.</DrawerDescription>
+            <DrawerTitle>{editingPromocode ? "Редактировать промокод" : "Создать промокод"}</DrawerTitle>
+            <DrawerDescription>Заполните данные промокода ниже.</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4 overflow-y-auto">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="promocode">Promocode *</Label>
+              <Label htmlFor="promocode">Промокод *</Label>
               <Input 
                 id="promocode" 
                 {...form.register("promocode")} 
-                placeholder="Enter promocode (e.g., SAVE20, WELCOME)" 
+                placeholder="Введите промокод (например, SAVE20, WELCOME)" 
                 className="uppercase"
                 style={{ textTransform: 'uppercase' }}
               />
@@ -768,7 +772,7 @@ export function PromocodeDataTable() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="amount">Amount *</Label>
+              <Label htmlFor="amount">Сумма *</Label>
               <Input 
                 id="amount" 
                 type="number" 
@@ -782,7 +786,7 @@ export function PromocodeDataTable() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="type">Type *</Label>
+              <Label htmlFor="type">Тип *</Label>
               <Select
                 onValueChange={(value) => form.setValue("type", value as "countable" | "fixed-term")}
                 value={form.watch("type")}
@@ -794,13 +798,13 @@ export function PromocodeDataTable() {
                   <SelectItem value="countable">
                     <div className="flex items-center gap-2">
                       <IconUsers className="h-4 w-4" />
-                      <span>Countable</span>
+                      <span>Количественный</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="fixed-term">
                     <div className="flex items-center gap-2">
                       <IconCalendar className="h-4 w-4" />
-                      <span>Fixed Term</span>
+                      <span>Срочный</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -813,19 +817,19 @@ export function PromocodeDataTable() {
             {/* Conditional fields based on type */}
             {selectedType === "countable" && (
               <div className="flex flex-col gap-2">
-                <Label htmlFor="countable">Usage Limit *</Label>
+                <Label htmlFor="countable">Лимит использований *</Label>
                 <Input 
                   id="countable" 
                   type="number" 
                   min="1"
                   {...form.register("countable", { valueAsNumber: true })} 
-                  placeholder="Enter usage limit (e.g., 100)" 
+                  placeholder="Введите лимит использований (например, 100)" 
                 />
                 {form.formState.errors.countable && (
                   <p className="text-destructive text-sm">{form.formState.errors.countable.message}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Number of times this promocode can be used
+                  Количество раз, которое можно использовать этот промокод
                 </p>
               </div>
             )}
@@ -833,7 +837,7 @@ export function PromocodeDataTable() {
             {selectedType === "fixed-term" && (
               <>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="start_date">Start Date</Label>
+                  <Label htmlFor="start_date">Дата начала</Label>
                   <Input 
                     id="start_date" 
                     type="date"
@@ -845,7 +849,7 @@ export function PromocodeDataTable() {
                 </div>
                 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="end_date">End Date</Label>
+                  <Label htmlFor="end_date">Дата окончания</Label>
                   <Input 
                     id="end_date" 
                     type="date"
@@ -859,7 +863,7 @@ export function PromocodeDataTable() {
             )}
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Статус</Label>
               <Select
                 onValueChange={(value) => form.setValue("status", value as "active" | "archive")}
                 value={form.watch("status")}
@@ -871,13 +875,13 @@ export function PromocodeDataTable() {
                   <SelectItem value="active">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span>Active</span>
+                      <span>Активен</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="archive">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                      <span>Archive</span>
+                      <span>Архив</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -890,12 +894,12 @@ export function PromocodeDataTable() {
                 <IconClock className="h-4 w-4 text-muted-foreground mt-0.5" />
                 <div className="text-sm text-muted-foreground">
                   <p className="font-medium mb-1">
-                    {selectedType === "countable" ? "Countable Type" : "Fixed Term Type"}
+                    {selectedType === "countable" ? "Количественный тип" : "Срочный тип"}
                   </p>
                   <p>
                     {selectedType === "countable" 
-                      ? "This promocode will be valid until the usage limit is reached."
-                      : "This promocode will be valid between the specified start and end dates."
+                      ? "Этот промокод будет действителен до достижения лимита использований."
+                      : "Этот промокод будет действителен между указанными датами начала и окончания."
                     }
                   </p>
                 </div>
@@ -904,10 +908,10 @@ export function PromocodeDataTable() {
           </form>
           <DrawerFooter>
             <Button type="submit" onClick={form.handleSubmit(handleSubmit)} disabled={loading}>
-              {editingPromocode ? "Update Promocode" : "Create Promocode"}
+              {editingPromocode ? "Обновить промокод" : "Создать промокод"}
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Отмена</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

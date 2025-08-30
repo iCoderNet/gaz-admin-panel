@@ -21,9 +21,9 @@ import api from "@/lib/api"
 const settingsSchema = z.object({
   enable_promocode: z.boolean().default(false),
   require_phone_on_order: z.boolean().default(true),
-  site_title: z.string().min(1, "Site title is required").default("My Site"),
+  site_title: z.string().min(1, "Название сайта обязательно").default("Мой сайт"),
   site_logo: z.any().optional(),
-  cargo_price: z.number().min(0, "Cargo price must be positive").default(500),
+  cargo_price: z.number().min(0, "Цена доставки должна быть положительной").default(500),
   bot_token: z.string().default("TOKEN"),
   order_notification: z.string().default("Новый заказ создан ✅"),
   chat_id: z.string().default("ID NUMBER"),
@@ -43,7 +43,7 @@ export default function SettingsPage() {
     defaultValues: {
       enable_promocode: false,
       require_phone_on_order: true,
-      site_title: "My Site",
+      site_title: "Мой сайт",
       cargo_price: 500,
       bot_token: "TOKEN",
       order_notification: "Новый заказ создан ✅",
@@ -62,16 +62,15 @@ export default function SettingsPage() {
         setSettings(settingsData)
         form.reset(settingsData)
         
-        // Set logo preview if exists
         if (settingsData.site_logo) {
           setLogoPreview(settingsData.site_logo)
         }
       } else {
-        throw new Error("Failed to fetch settings")
+        throw new Error("Не удалось загрузить настройки")
       }
     } catch (error) {
-      console.error("Error fetching settings:", error)
-      toast.error("Failed to load settings")
+      console.error("Ошибка при загрузке настроек:", error)
+      toast.error("Не удалось загрузить настройки")
     } finally {
       setLoading(false)
     }
@@ -81,53 +80,41 @@ export default function SettingsPage() {
     fetchSettings()
   }, [fetchSettings])
 
-  // Handle logo upload
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error("Please select an image file")
+      toast.error("Пожалуйста, выберите файл изображения")
       return
     }
 
-    // Validate file size (30MB max)
     if (file.size > 30 * 1024 * 1024) {
-      toast.error("Image must be less than 30MB")
+      toast.error("Изображение должно быть меньше 30MB")
       return
     }
 
-    // Create preview
     const reader = new FileReader()
     reader.onload = (e) => {
       setLogoPreview(e.target?.result as string)
     }
     reader.readAsDataURL(file)
 
-    // Set form value
     form.setValue("site_logo", file)
   }
 
-  // Handle form submission
   const onSubmit = async (data: Settings) => {
     try {
       setSaving(true)
       console.log(data);
       
-      
-      // Create FormData for file upload
       const formData = new FormData()
-      
-      // Append all fields to FormData with proper formatting
       Object.entries(data).forEach(([key, value]) => {
         if (key === "site_logo" && value instanceof File) {
           formData.append(key, value)
         } else if (key === "enable_promocode" || key === "require_phone_on_order") {
-          // Convert boolean values to string "1" or "0" for Laravel validation
           formData.append(key, value ? "1" : "0")
         } else if (key === "cargo_price") {
-          // Convert number to string
           formData.append(key, value.toString())
         } else {
           formData.append(key, value.toString())
@@ -135,26 +122,21 @@ export default function SettingsPage() {
       })
 
       const response = await api.post("/settings/save", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       })
 
       if (response.data.message) {
-        toast.success("Settings saved successfully")
-        // Refresh settings after save
+        toast.success("Настройки успешно сохранены")
         fetchSettings()
       } else {
-        throw new Error("Failed to save settings")
+        throw new Error("Не удалось сохранить настройки")
       }
     } catch (error: any) {
-      console.error("Error saving settings:", error)
-      const errorMessage = error.response?.data?.message || "Failed to save settings"
+      console.error("Ошибка при сохранении настроек:", error)
+      const errorMessage = error.response?.data?.message || "Не удалось сохранить настройки"
       toast.error(errorMessage)
-      
-      // Additional error details might be in error.response.data.errors
       if (error.response?.data?.errors) {
-        console.error("Validation errors:", error.response.data.errors)
+        console.error("Ошибки валидации:", error.response.data.errors)
       }
     } finally {
       setSaving(false)
@@ -180,19 +162,19 @@ export default function SettingsPage() {
     <div className="container mx-auto py-6 space-y-6 lg:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Настройки</h2>
           <p className="text-muted-foreground">
-            Manage your application settings and preferences
+            Управляйте настройками и предпочтениями приложения
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchSettings}>
             <IconReload className="mr-2 h-4 w-4" />
-            Reload
+            Перезагрузить
           </Button>
           <Button onClick={form.handleSubmit(onSubmit)} disabled={saving}>
             <IconDeviceFloppy className="mr-2 h-4 w-4" />
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? "Сохранение..." : "Сохранить изменения"}
           </Button>
         </div>
       </div>
@@ -202,28 +184,28 @@ export default function SettingsPage() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Tabs defaultValue="general" className="w-full">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-            <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="general">Общие</TabsTrigger>
             <TabsTrigger value="ecommerce">E-commerce</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
+            <TabsTrigger value="notifications">Уведомления</TabsTrigger>
+            <TabsTrigger value="appearance">Внешний вид</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-4 pt-4">
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Site Information</CardTitle>
+                  <CardTitle>Информация о сайте</CardTitle>
                   <CardDescription>
-                    Configure your site title and logo
+                    Настройте название и логотип сайта
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="site_title">Site Title</Label>
+                    <Label htmlFor="site_title">Название сайта</Label>
                     <Input
                       id="site_title"
                       {...form.register("site_title")}
-                      placeholder="Enter site title"
+                      placeholder="Введите название сайта"
                     />
                     {form.formState.errors.site_title && (
                       <p className="text-sm text-destructive">
@@ -233,35 +215,26 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="site_logo">Site Logo</Label>
+                    <Label htmlFor="site_logo">Логотип сайта</Label>
                     <div className="flex items-center gap-4">
                       {logoPreview && (
                         <div className="h-16 w-16 rounded-md overflow-hidden border">
                           <img
                             src={logoPreview}
-                            alt="Site logo preview"
+                            alt="Предпросмотр логотипа"
                             className="h-full w-full object-contain"
                           />
                         </div>
                       )}
                       <div className="flex-1">
-                        <Input
-                          id="site_logo"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoChange}
-                          className="hidden"
-                        />
-                        <Label
-                          htmlFor="site_logo"
-                          className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-4 cursor-pointer hover:bg-muted/50"
-                        >
+                        <Input id="site_logo" type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
+                        <Label htmlFor="site_logo" className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-4 cursor-pointer hover:bg-muted/50">
                           <IconUpload className="h-6 w-6 text-muted-foreground mb-2" />
                           <span className="text-sm text-muted-foreground text-center">
-                            Click to upload or drag and drop
+                            Нажмите, чтобы загрузить или перетащите файл
                           </span>
                           <span className="text-xs text-muted-foreground mt-1">
-                            SVG, PNG, JPG or GIF (max. 30MB)
+                            SVG, PNG, JPG или GIF (макс. 30MB)
                           </span>
                         </Label>
                       </div>
@@ -272,14 +245,14 @@ export default function SettingsPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Shipping Settings</CardTitle>
+                  <CardTitle>Настройки доставки</CardTitle>
                   <CardDescription>
-                    Configure shipping and delivery options
+                    Настройте параметры доставки
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="cargo_price">Cargo Price</Label>
+                    <Label htmlFor="cargo_price">Стоимость доставки</Label>
                     <Input
                       id="cargo_price"
                       type="number"
@@ -302,46 +275,40 @@ export default function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Order Settings</CardTitle>
+                  <CardTitle>Настройки заказов</CardTitle>
                   <CardDescription>
-                    Configure order processing options
+                    Настройте параметры обработки заказов
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label htmlFor="require_phone_on_order">Require Phone Number</Label>
+                      <Label htmlFor="require_phone_on_order">Требовать номер телефона</Label>
                       <p className="text-sm text-muted-foreground">
-                        Customers must provide a phone number when ordering
+                        Клиенты должны указывать номер телефона при заказе
                       </p>
                     </div>
                     <Switch
                       id="require_phone_on_order"
                       checked={form.watch("require_phone_on_order")}
                       onCheckedChange={(checked) => 
-                        form.setValue("require_phone_on_order", checked, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        })
+                        form.setValue("require_phone_on_order", checked, { shouldValidate: true, shouldDirty: true })
                       }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label htmlFor="enable_promocode">Enable Promo Codes</Label>
+                      <Label htmlFor="enable_promocode">Включить промокоды</Label>
                       <p className="text-sm text-muted-foreground">
-                        Allow customers to apply promo codes during checkout
+                        Разрешить клиентам использовать промокоды при оформлении заказа
                       </p>
                     </div>
                     <Switch
                       id="enable_promocode"
                       checked={form.watch("enable_promocode")}
                       onCheckedChange={(checked) => 
-                        form.setValue("enable_promocode", checked, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        })
+                        form.setValue("enable_promocode", checked, { shouldValidate: true, shouldDirty: true })
                       }
                     />
                   </div>
@@ -354,38 +321,25 @@ export default function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Telegram Bot Settings</CardTitle>
+                  <CardTitle>Настройки Telegram-бота</CardTitle>
                   <CardDescription>
-                    Configure Telegram notifications for new orders
+                    Настройте уведомления о новых заказах через Telegram
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="bot_token">Bot Token</Label>
-                    <Input
-                      id="bot_token"
-                      {...form.register("bot_token")}
-                      placeholder="Enter Telegram bot token"
-                    />
+                    <Label htmlFor="bot_token">Токен бота</Label>
+                    <Input id="bot_token" {...form.register("bot_token")} placeholder="Введите токен Telegram-бота" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="chat_id">Chat ID</Label>
-                    <Input
-                      id="chat_id"
-                      {...form.register("chat_id")}
-                      placeholder="Enter Telegram chat ID"
-                    />
+                    <Input id="chat_id" {...form.register("chat_id")} placeholder="Введите Telegram Chat ID" />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="order_notification">Order Notification Message</Label>
-                    <Textarea
-                      id="order_notification"
-                      {...form.register("order_notification")}
-                      placeholder="Enter notification message"
-                      rows={3}
-                    />
+                    <Label htmlFor="order_notification">Текст уведомления о заказе</Label>
+                    <Textarea id="order_notification" {...form.register("order_notification")} placeholder="Введите текст уведомления" rows={3} />
                   </div>
                 </CardContent>
               </Card>
@@ -396,30 +350,30 @@ export default function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Theme Settings</CardTitle>
+                  <CardTitle>Настройки темы</CardTitle>
                   <CardDescription>
-                    Customize the appearance of your application
+                    Настройте внешний вид приложения
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="theme">Theme</Label>
+                    <Label htmlFor="theme">Тема</Label>
                     <div className="flex items-center gap-4">
                       <Select value={theme} onValueChange={toggleTheme}>
                         <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select theme" />
+                          <SelectValue placeholder="Выберите тему" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="light">
                             <div className="flex items-center">
                               <IconSun className="mr-2 h-4 w-4" />
-                              Light
+                              Светлая
                             </div>
                           </SelectItem>
                           <SelectItem value="dark">
                             <div className="flex items-center">
                               <IconMoon className="mr-2 h-4 w-4" />
-                              Dark
+                              Тёмная
                             </div>
                           </SelectItem>
                         </SelectContent>
@@ -436,8 +390,8 @@ export default function SettingsPage() {
                   
                   <div className="pt-4">
                     <p className="text-sm text-muted-foreground">
-                      The theme controls the color scheme of the application interface.
-                      Changes are saved automatically to your browser's local storage.
+                      Тема управляет цветовой схемой интерфейса приложения.
+                      Изменения сохраняются автоматически в локальное хранилище вашего браузера.
                     </p>
                   </div>
                 </CardContent>
@@ -445,26 +399,26 @@ export default function SettingsPage() {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Preview</CardTitle>
+                  <CardTitle>Предпросмотр</CardTitle>
                   <CardDescription>
-                    See how your theme will look
+                    Посмотрите, как будет выглядеть тема
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className={`rounded-lg border p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-                    <h3 className="font-semibold mb-2">Theme Preview</h3>
+                    <h3 className="font-semibold mb-2">Предпросмотр темы</h3>
                     <p className="text-sm mb-3">
-                      This is how text will appear in your selected theme.
+                      Так будет выглядеть текст в выбранной теме.
                     </p>
                     <div className={`p-3 rounded-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                      <p className="text-xs">Card element example</p>
+                      <p className="text-xs">Пример карточки</p>
                     </div>
                     <div className="flex gap-2 mt-3">
                       <button type="button" className={`px-3 py-1 rounded text-xs ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white`}>
-                        Button
+                        Кнопка
                       </button>
                       <button type="button" className={`px-3 py-1 rounded text-xs ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}>
-                        Secondary
+                        Вторичная
                       </button>
                     </div>
                   </div>
@@ -477,7 +431,7 @@ export default function SettingsPage() {
         <div className="flex justify-end sticky bottom-4 bg-background p-4 rounded-lg border shadow-sm">
           <Button type="submit" disabled={saving}>
             <IconDeviceFloppy className="mr-2 h-4 w-4" />
-            {saving ? "Saving Changes..." : "Save All Changes"}
+            {saving ? "Сохраняем изменения..." : "Сохранить все изменения"}
           </Button>
         </div>
       </form>

@@ -28,23 +28,23 @@ const Dashboard = () => {
   }, [])
 
   const statCards = [
-    { title: 'Total Users', value: stats?.users ?? '—', icon: Users },
-    { title: 'Orders', value: stats?.orders ?? '—', icon: Package },
-    { title: 'Azot Items', value: stats?.azots ?? '—', icon: DollarSign },
-    { title: 'Services', value: stats?.services ?? '—', icon: Settings },
+    { title: 'Всего пользователей', value: stats?.users ?? '—', icon: Users },
+    { title: 'Заказы', value: stats?.orders ?? '—', icon: Package },
+    { title: 'Азотные товары', value: stats?.azots ?? '—', icon: DollarSign },
+    { title: 'Дополнительные услуги', value: stats?.services ?? '—', icon: Settings },
   ]
 
   return (
     <div className="flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold">Панель управления</h1>
           <p className="text-muted-foreground">
-            Welcome back, {user?.username}!
+            Добро пожаловать обратно, {user?.username}!
           </p>
         </div>
         <Button variant="outline" onClick={logout}>
-          Logout
+          Выйти
         </Button>
       </div>
 

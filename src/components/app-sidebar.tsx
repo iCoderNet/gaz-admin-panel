@@ -33,46 +33,46 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Панель управления",
       url: "/dashboard",
       icon: IconDashboard,
     },
     {
-      title: "Users",
+      title: "Пользователи",
       url: "/users",
       icon: IconUsers,
     },
     {
-      title: "Orders",
+      title: "Заказы",
       url: "/orders",
       icon: IconBasketDollar,
     },
     {
-      title: "Azots",
+      title: "Азот",
       url: "/azots",
       icon: IconDatabase,
     },
     {
-      title: "Accessories",
+      title: "Аксессуары",
       url: "/accessories",
       icon: IconPropeller,
     },
     {
-      title: "Services",
+      title: "Услуги",
       url: "/services",
       icon: IconReport,
     },
     {
-      title: "Promocodes",
+      title: "Промокоды",
       url: "/promocodes",
       icon: IconGift,
     },
     {
-      title: "Send Messages",
+      title: "Отправить сообщения",
       url: "/tg-messages",
       icon: IconSend,
     }
-  ],
+  ]
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -87,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Admin Panel</span>
+                <span className="text-base font-semibold">Админ-панель</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

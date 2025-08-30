@@ -332,7 +332,7 @@ const columns: ColumnDef<Order>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -341,7 +341,7 @@ const columns: ColumnDef<Order>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -356,7 +356,7 @@ const columns: ColumnDef<Order>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Order ID
+        ID Заказа
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -370,7 +370,7 @@ const columns: ColumnDef<Order>[] = [
   },
   {
     accessorKey: "user",
-    header: "Customer",
+    header: "Клиент",
     cell: ({ row }) => {
       const user = row.original.user;
       return (
@@ -380,7 +380,7 @@ const columns: ColumnDef<Order>[] = [
           </div>
           <div>
             <div className="font-medium max-w-[150px] truncate">
-              {user?.full_name || user?.username || "No name"}
+              {user?.full_name || user?.username || "Без имени"}
             </div>
             {user?.phone && (
               <div className="text-xs text-muted-foreground flex items-center gap-1">
@@ -396,7 +396,7 @@ const columns: ColumnDef<Order>[] = [
   },
   {
     accessorKey: "status_text",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       const statusText = row.original.status_text;
@@ -410,11 +410,11 @@ const columns: ColumnDef<Order>[] = [
   },
   {
     accessorKey: "payment_type",
-    header: "Payment",
+    header: "Оплата",
     cell: ({ row }) => {
       const paymentType = row.original.payment_type;
       if (!paymentType) {
-        return <Badge className="bg-gray-100 text-gray-500 border-gray-300">Not Set</Badge>;
+        return <Badge className="bg-gray-100 text-gray-500 border-gray-300">Не указано</Badge>;
       }
       return (
         <Badge className={getPaymentTypeColor(paymentType)}>
@@ -432,16 +432,16 @@ const columns: ColumnDef<Order>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Subtotal
+        Подытог
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => (
       <div className="font-medium text-muted-foreground">
-        ${typeof row.original.all_price === 'string' 
-          ? parseFloat(row.original.all_price).toFixed(2) 
-          : row.original.all_price.toFixed(2)}
+        {typeof row.original.all_price === 'string' 
+          ? parseFloat(row.original.all_price) 
+          : row.original.all_price} рубль
       </div>
     ),
     enableSorting: true,
@@ -453,16 +453,16 @@ const columns: ColumnDef<Order>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Total
+        Итого
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => (
       <div className="font-bold text-green-600">
-        ${typeof row.original.total_price === 'string' 
-          ? parseFloat(row.original.total_price).toFixed(2) 
-          : row.original.total_price.toFixed(2)}
+        {typeof row.original.total_price === 'string' 
+          ? parseFloat(row.original.total_price) 
+          : row.original.total_price} рубль
       </div>
     ),
     enableSorting: true,
@@ -474,14 +474,14 @@ const columns: ColumnDef<Order>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Создан
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => {
       const date = row.original.created_at;
-      return date ? new Date(date).toLocaleDateString() : "N/A";
+      return date ? new Date(date).toLocaleDateString() : "Н/Д";
     },
     enableSorting: true,
   },
@@ -492,7 +492,7 @@ const columns: ColumnDef<Order>[] = [
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" className="size-8">
             <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Открыть меню</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -501,14 +501,14 @@ const columns: ColumnDef<Order>[] = [
             globalHandleView(row.original);
           }}>
             <IconEye className="mr-2 h-4 w-4" />
-            View Details
+            Просмотр деталей
           </DropdownMenuItem>
           <DropdownMenuItem onClick={(e) => {
             e.stopPropagation();
             globalHandleEdit(row.original);
           }}>
             <IconPencil className="mr-2 h-4 w-4" />
-            Edit Status
+            Изменить статус
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -518,7 +518,7 @@ const columns: ColumnDef<Order>[] = [
               globalHandleDelete(row.original.id!);
             }}
           >
-            Delete
+            Удалить
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -618,7 +618,7 @@ export function OrderDataTable() {
           search: globalFilter || undefined,
           status: statusFilter && statusFilter !== "all" ? statusFilter : undefined,
           sort_by: sort?.id || "id",
-          sort_order: sort?.desc ? "desc" : "asc",
+          sort_order: sort?.desc ? "asc" : "desc",
         }
 
         const response = await api.get("/orders", { params })
@@ -637,8 +637,8 @@ export function OrderDataTable() {
           throw new Error("API returned success: false")
         }
       } catch (err: any) {
-        setError(err.message || "Error fetching orders")
-        toast.error(err.message || "Error fetching orders")
+        setError(err.message || "Ошибка загрузки заказов")
+        toast.error(err.message || "Ошибка загрузки заказов")
         setData([])
       } finally {
         setLoading(false)
@@ -659,26 +659,26 @@ export function OrderDataTable() {
         const updateData = { status: formData.status, payment_type: formData.payment_type };
         const response = await api.put(`/orders/${editingOrder.id}`, updateData);
         console.log('Update response:', response.data);
-        toast.success("Order status updated successfully");
+        toast.success("Статус заказа успешно обновлен");
       }
       
       setDrawerOpen(false);
       setEditingOrder(null);
       fetchOrders();
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || "Error updating order";
+      const errorMessage = err.response?.data?.message || err.message || "Ошибка обновления заказа";
       toast.error(errorMessage);
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this order?")) return
+    if (!confirm("Вы уверены, что хотите удалить этот заказ?")) return
     try {
       await api.delete(`/orders/${id}`)
-      toast.success("Order deleted successfully")
+      toast.success("Заказ успешно удален")
       fetchOrders()
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Error deleting order"
+      const errorMessage = err.response?.data?.message || "Ошибка удаления заказа"
       toast.error(errorMessage)
     }
   }
@@ -707,7 +707,7 @@ export function OrderDataTable() {
           <div className="relative flex-1">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search orders, customers..."
+              placeholder="Поиск заказов, клиентов..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -723,10 +723,10 @@ export function OrderDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Статус" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
               <SelectItem value="new">Не Оформлен</SelectItem>
               <SelectItem value="pending">Оформлен</SelectItem>
               <SelectItem value="accepted">Принято</SelectItem>
@@ -740,7 +740,7 @@ export function OrderDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Столбцы
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -753,13 +753,14 @@ export function OrderDataTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id === "id" ? "Order ID" : 
-                     column.id === "user" ? "Customer" :
-                     column.id === "status_text" ? "Status" :
-                     column.id === "payment_type" ? "Payment" :
-                     column.id === "all_price" ? "Subtotal" :
-                     column.id === "total_price" ? "Total" :
-                     column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                    {column.id === "id" ? "ID Заказа" : 
+                     column.id === "user" ? "Клиент" :
+                     column.id === "status_text" ? "Статус" :
+                     column.id === "payment_type" ? "Оплата" :
+                     column.id === "all_price" ? "Подытог" :
+                     column.id === "total_price" ? "Итого" :
+                     column.id === "created_at" ? "Создан" :
+                     column.id.charAt(0).toUpperCase() + column.id.slice(1).replace('_', ' ')}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
@@ -817,7 +818,7 @@ export function OrderDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No orders found.
+                  Заказы не найдены.
                 </TableCell>
               </TableRow>
             )}
@@ -827,11 +828,11 @@ export function OrderDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк(и) выбрано.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -849,7 +850,7 @@ export function OrderDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -894,8 +895,8 @@ export function OrderDataTable() {
       <Drawer open={viewDrawerOpen} onOpenChange={setViewDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent className="max-w-full">
           <DrawerHeader>
-            <DrawerTitle>Order Details #{viewingOrder?.id}</DrawerTitle>
-            <DrawerDescription>Complete order information and items</DrawerDescription>
+            <DrawerTitle>Детали заказа #{viewingOrder?.id}</DrawerTitle>
+            <DrawerDescription>Полная информация о заказе и товарах</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 overflow-y-auto max-h-[80vh]">
             {viewingOrder && (
@@ -905,12 +906,12 @@ export function OrderDataTable() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <IconShoppingCart className="h-5 w-5" />
-                      Order Information
+                      Информация о заказе
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label className="text-sm text-muted-foreground">Status</Label>
+                      <Label className="text-sm text-muted-foreground">Статус</Label>
                       <div className="mt-1">
                         <Badge className={getStatusColor(viewingOrder.status)}>
                           {viewingOrder.status_text || viewingOrder.status.charAt(0).toUpperCase() + viewingOrder.status.slice(1)}
@@ -918,24 +919,24 @@ export function OrderDataTable() {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm text-muted-foreground">Payment Type</Label>
+                      <Label className="text-sm text-muted-foreground">Тип оплаты</Label>
                       <div className="mt-1">
                         <Badge className={getPaymentTypeColor(viewingOrder.payment_type || null)}>
                           <IconCreditCard className="h-3 w-3 mr-1" />
-                          {viewingOrder.payment_type || "Not Set"}
+                          {viewingOrder.payment_type || "Не указано"}
                         </Badge>
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm text-muted-foreground">Created Date</Label>
+                      <Label className="text-sm text-muted-foreground">Дата создания</Label>
                       <div className="mt-1 text-sm">
-                        {viewingOrder.created_at ? new Date(viewingOrder.created_at).toLocaleString() : "N/A"}
+                        {viewingOrder.created_at ? new Date(viewingOrder.created_at).toLocaleString() : "Н/Д"}
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm text-muted-foreground">Last Updated</Label>
+                      <Label className="text-sm text-muted-foreground">Последнее обновление</Label>
                       <div className="mt-1 text-sm">
-                        {viewingOrder.updated_at ? new Date(viewingOrder.updated_at).toLocaleString() : "N/A"}
+                        {viewingOrder.updated_at ? new Date(viewingOrder.updated_at).toLocaleString() : "Н/Д"}
                       </div>
                     </div>
                   </CardContent>
@@ -947,19 +948,19 @@ export function OrderDataTable() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <IconUser className="h-5 w-5" />
-                        Customer Information
+                        Информация о клиенте
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <Label className="text-sm text-muted-foreground">Name</Label>
+                        <Label className="text-sm text-muted-foreground">Имя</Label>
                         <div className="mt-1 text-sm">
-                          {viewingOrder.user.full_name || viewingOrder.user.username || "No name"}
+                          {viewingOrder.user.full_name || viewingOrder.user.username || "Без имени"}
                         </div>
                       </div>
                       {viewingOrder.user.phone && (
                         <div>
-                          <Label className="text-sm text-muted-foreground">Phone</Label>
+                          <Label className="text-sm text-muted-foreground">Телефон</Label>
                           <div className="mt-1 text-sm flex items-center gap-1">
                             <IconPhone className="h-3 w-3" />
                             {viewingOrder.user.phone}
@@ -976,7 +977,7 @@ export function OrderDataTable() {
                       )}
                       {viewingOrder.user.role && (
                         <div>
-                          <Label className="text-sm text-muted-foreground">Role</Label>
+                          <Label className="text-sm text-muted-foreground">Роль</Label>
                           <div className="mt-1 text-sm capitalize">
                             {viewingOrder.user.role}
                           </div>
@@ -991,13 +992,13 @@ export function OrderDataTable() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <IconMapPin className="h-5 w-5" />
-                      Delivery Information
+                      Информация о доставке
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {viewingOrder.phone && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Delivery Phone</Label>
+                        <Label className="text-sm text-muted-foreground">Телефон для доставки</Label>
                         <div className="mt-1 text-sm flex items-center gap-1">
                           <IconPhone className="h-3 w-3" />
                           {viewingOrder.phone}
@@ -1006,7 +1007,7 @@ export function OrderDataTable() {
                     )}
                     {viewingOrder.address && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Delivery Address</Label>
+                        <Label className="text-sm text-muted-foreground">Адрес доставки</Label>
                         <div className="mt-1 text-sm">
                           {viewingOrder.address}
                         </div>
@@ -1014,7 +1015,7 @@ export function OrderDataTable() {
                     )}
                     {viewingOrder.comment && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Order Comment</Label>
+                        <Label className="text-sm text-muted-foreground">Комментарий к заказу</Label>
                         <div className="mt-1 text-sm bg-muted p-2 rounded-md">
                           {viewingOrder.comment}
                         </div>
@@ -1022,7 +1023,7 @@ export function OrderDataTable() {
                     )}
                     {!viewingOrder.phone && !viewingOrder.address && !viewingOrder.comment && (
                       <div className="text-sm text-muted-foreground italic">
-                        No delivery information provided
+                        Информация о доставке не предоставлена
                       </div>
                     )}
                   </CardContent>
@@ -1033,28 +1034,28 @@ export function OrderDataTable() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <IconCurrencyDollar className="h-5 w-5" />
-                      Price Breakdown
+                      Детали цены
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Subtotal:</span>
+                      <span className="text-sm text-muted-foreground">Подытог:</span>
                       <span className="text-sm font-medium">
-                        ${typeof viewingOrder.all_price === 'string' 
-                          ? parseFloat(viewingOrder.all_price).toFixed(2) 
-                          : viewingOrder.all_price.toFixed(2)}
+                        {typeof viewingOrder.all_price === 'string' 
+                          ? parseFloat(viewingOrder.all_price) 
+                          : viewingOrder.all_price} рубль
                       </span>
                     </div>
                     {viewingOrder.cargo_price > 0 && (
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
                           <IconTruck className="h-3 w-3" />
-                          Cargo Price:
+                          Стоимость доставки:
                         </span>
                         <span className="text-sm">
-                          ${typeof viewingOrder.cargo_price === 'string' 
-                            ? parseFloat(viewingOrder.cargo_price).toFixed(2) 
-                            : viewingOrder.cargo_price.toFixed(2)}
+                          {typeof viewingOrder.cargo_price === 'string' 
+                            ? parseFloat(viewingOrder.cargo_price) 
+                            : viewingOrder.cargo_price} рубль
                         </span>
                       </div>
                     )}
@@ -1062,22 +1063,22 @@ export function OrderDataTable() {
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
                           <IconTag className="h-3 w-3" />
-                          Promo Discount:
+                          Скидка по промокоду:
                         </span>
                         <span className="text-sm text-red-600">
-                          -${typeof viewingOrder.promo_price === 'string' 
-                            ? parseFloat(viewingOrder.promo_price).toFixed(2) 
-                            : viewingOrder.promo_price.toFixed(2)}
+                          -{typeof viewingOrder.promo_price === 'string' 
+                            ? parseFloat(viewingOrder.promo_price) 
+                            : viewingOrder.promo_price} рубль
                         </span>
                       </div>
                     )}
                     <Separator />
                     <div className="flex justify-between">
-                      <span className="font-medium">Total:</span>
+                      <span className="font-medium">Итого:</span>
                       <span className="font-bold text-green-600">
-                        ${typeof viewingOrder.total_price === 'string' 
-                          ? parseFloat(viewingOrder.total_price).toFixed(2) 
-                          : viewingOrder.total_price.toFixed(2)}
+                        {typeof viewingOrder.total_price === 'string' 
+                          ? parseFloat(viewingOrder.total_price) 
+                          : viewingOrder.total_price} рубль
                       </span>
                     </div>
                   </CardContent>
@@ -1087,33 +1088,33 @@ export function OrderDataTable() {
                 {(viewingOrder.azots?.length || viewingOrder.accessories?.length || viewingOrder.services?.length) && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Order Items</CardTitle>
+                      <CardTitle>Товары заказа</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {/* Azots */}
                       {viewingOrder.azots && viewingOrder.azots.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2 text-blue-600">Azots</h4>
+                          <h4 className="font-medium text-sm mb-2 text-blue-600">Азоты</h4>
                           <div className="space-y-2">
                             {viewingOrder.azots.map((azot, index) => (
                               <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">
-                                    {azot.azot?.title || `Azot #${azot.azot_id}`}
+                                    {azot.azot?.title || `Азот #${azot.azot_id}`}
                                   </div>
                                   <div className="text-xs text-muted-foreground mt-1">
-                                    Type: {azot.azot?.type} • Quantity: {azot.count}
+                                    Тип: {azot.azot?.type} • Количество: {azot.count}
                                   </div>
                                   {azot.azot?.country && (
                                     <div className="text-xs text-muted-foreground">
-                                      Country: {azot.azot.country}
+                                      Страна: {azot.azot.country}
                                     </div>
                                   )}
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">${azot.total_price.toFixed(2)}</div>
+                                  <div className="text-sm font-medium">{azot.total_price} рубль</div>
                                   <div className="text-xs text-muted-foreground">
-                                    ${azot.price.toFixed(2)} each
+                                    {azot.price} рубль за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1125,22 +1126,22 @@ export function OrderDataTable() {
                       {/* Accessories */}
                       {viewingOrder.accessories && viewingOrder.accessories.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2 text-purple-600">Accessories</h4>
+                          <h4 className="font-medium text-sm mb-2 text-purple-600">Аксессуары</h4>
                           <div className="space-y-2">
                             {viewingOrder.accessories.map((accessory, index) => (
                               <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">
-                                    Accessory #{accessory.accessory_id}
+                                    Аксессуар #{accessory.accessory_id}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    Quantity: {accessory.count}
+                                    Количество: {accessory.count}
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">${accessory.total_price.toFixed(2)}</div>
+                                  <div className="text-sm font-medium">{accessory.total_price} рубль</div>
                                   <div className="text-xs text-muted-foreground">
-                                    ${accessory.price.toFixed(2)} each
+                                    {accessory.price} рубль за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1152,22 +1153,22 @@ export function OrderDataTable() {
                       {/* Services */}
                       {viewingOrder.services && viewingOrder.services.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2 text-green-600">Services</h4>
+                          <h4 className="font-medium text-sm mb-2 text-green-600">Услуги</h4>
                           <div className="space-y-2">
                             {viewingOrder.services.map((service, index) => (
                               <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">
-                                    {service.service?.name || `Service #${service.additional_service_id}`}
+                                    {service.service?.name || `Услуга #${service.additional_service_id}`}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    Quantity: {service.count}
+                                    Количество: {service.count}
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">${service.total_price.toFixed(2)}</div>
+                                  <div className="text-sm font-medium">{service.total_price} рубль</div>
                                   <div className="text-xs text-muted-foreground">
-                                    ${service.price.toFixed(2)} each
+                                    {service.price} рубль за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1185,17 +1186,17 @@ export function OrderDataTable() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <IconTag className="h-5 w-5" />
-                        Promocode Applied
+                        Применен промокод
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex justify-between items-center bg-orange-50 p-3 rounded-lg border border-orange-200">
                         <div>
                           <div className="font-mono text-sm font-medium">{viewingOrder.promocode.promocode}</div>
-                          <div className="text-xs text-muted-foreground capitalize">{viewingOrder.promocode.type} discount</div>
+                          <div className="text-xs text-muted-foreground capitalize">Скидка {viewingOrder.promocode.type}</div>
                         </div>
                         <div className="text-sm font-medium text-red-600">
-                          -${viewingOrder.promocode.amount.toFixed(2)}
+                          -{viewingOrder.promocode.amount} рубль
                         </div>
                       </div>
                     </CardContent>
@@ -1208,10 +1209,10 @@ export function OrderDataTable() {
             <div className="flex gap-2">
               <Button onClick={() => handleEdit(viewingOrder!)} size="sm">
                 <IconPencil className="h-4 w-4 mr-2" />
-                Edit Status
+                Изменить статус
               </Button>
               <DrawerClose asChild>
-                <Button variant="outline">Close</Button>
+                <Button variant="outline">Закрыть</Button>
               </DrawerClose>
             </div>
           </DrawerFooter>
@@ -1222,13 +1223,13 @@ export function OrderDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Update Order Status #{editingOrder?.id}</DrawerTitle>
-            <DrawerDescription>Change the order status and payment method</DrawerDescription>
+            <DrawerTitle>Обновить статус заказа #{editingOrder?.id}</DrawerTitle>
+            <DrawerDescription>Изменить статус заказа и способ оплаты</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="status">Order Status *</Label>
+                <Label htmlFor="status">Статус заказа *</Label>
                 <Select
                   onValueChange={(value) => form.setValue("status", value as "new" | "pending" | "accepted" | "rejected" | "completed")}
                   value={form.watch("status")}
@@ -1251,11 +1252,11 @@ export function OrderDataTable() {
               </div>
               
               <div className="flex flex-col gap-2">
-                <Label htmlFor="payment_type">Payment Type</Label>
+                <Label htmlFor="payment_type">Тип оплаты</Label>
                 <input
                   id="payment_type"
                   type="text"
-                  placeholder="Enter payment type"
+                  placeholder="Введите тип оплаты"
                   className="border rounded px-3 py-2"
                   value={form.watch("payment_type") || ""}
                   onChange={(e) => form.setValue("payment_type", e.target.value)}
@@ -1266,10 +1267,10 @@ export function OrderDataTable() {
           </form>
           <DrawerFooter>
             <Button type="submit" onClick={form.handleSubmit(handleSubmit)} disabled={loading}>
-              {loading ? "Updating..." : "Update Order"}
+              {loading ? "Обновление..." : "Обновить заказ"}
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Отмена</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

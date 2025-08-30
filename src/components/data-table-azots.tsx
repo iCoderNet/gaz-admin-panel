@@ -84,19 +84,19 @@ import api from "@/lib/api"
 // Price Type schema
 const priceTypeSchema = z.object({
   id: z.number().optional(),
-  name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().min(0, "Price must be positive"),
+  name: z.string().min(1, "Название обязательно"),
+  price: z.coerce.number().min(0, "Цена должна быть положительной"),
 })
 
 // Azot schema
 const azotSchema = z.object({
   id: z.number().optional(),
-  title: z.string().min(1, "Title is required"),
-  type: z.string().min(1, "Type is required"),
+  title: z.string().min(1, "Заголовок обязателен"),
+  type: z.string().min(1, "Тип обязателен"),
   image: z.string().optional().nullable(),
   image_url: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  country: z.string().min(1, "Country is required"),
+  country: z.string().min(1, "Страна обязательна"),
   status: z.enum(["active", "archive"]).optional(),
   created_at: z.string().optional().nullable(),
   updated_at: z.string().optional().nullable(),
@@ -148,7 +148,7 @@ const columns: ColumnDef<Azot>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -157,7 +157,7 @@ const columns: ColumnDef<Azot>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -167,7 +167,7 @@ const columns: ColumnDef<Azot>[] = [
   },
   {
     accessorKey: "image",
-    header: "Image",
+    header: "Изображение",
     cell: ({ row }) => (
       <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
         {row.original.image ? (
@@ -190,7 +190,7 @@ const columns: ColumnDef<Azot>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Title
+        Название
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -215,7 +215,7 @@ const columns: ColumnDef<Azot>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         <IconTag className="mr-1 h-4 w-4" />
-        Type
+        Тип
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -235,7 +235,7 @@ const columns: ColumnDef<Azot>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         <IconWorldWww className="mr-1 h-4 w-4" />
-        Country
+        Страна
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -252,7 +252,7 @@ const columns: ColumnDef<Azot>[] = [
     header: () => (
       <div className="flex items-center gap-1">
         <IconCurrencyDollar className="h-4 w-4" />
-        Prices
+        Цены
       </div>
     ),
     cell: ({ row }) => {
@@ -273,7 +273,7 @@ const columns: ColumnDef<Azot>[] = [
               )}
             </div>
           ) : (
-            <span className="text-muted-foreground text-sm">No prices</span>
+            <span className="text-muted-foreground text-sm">Нет цен</span>
           )}
         </div>
       );
@@ -282,16 +282,18 @@ const columns: ColumnDef<Azot>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       let variant: "default" | "secondary" = "secondary";
       
       if (status === "active") variant = "default";
       
+      const statusText = status === "active" ? "активный" : "архив";
+      
       return (
         <Badge variant={variant} className="capitalize">
-          {status}
+          {statusText}
         </Badge>
       );
     },
@@ -303,14 +305,14 @@ const columns: ColumnDef<Azot>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Создано
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => {
       const date = row.original.created_at;
-      return date ? new Date(date).toLocaleDateString() : "N/A";
+      return date ? new Date(date).toLocaleDateString() : "Н/Д";
     },
     enableSorting: true,
   },
@@ -321,19 +323,19 @@ const columns: ColumnDef<Azot>[] = [
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" className="size-8">
             <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Открыть меню</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => globalHandleEdit(row.original)}>
-            Edit
+            Редактировать
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
             onClick={() => globalHandleDelete(row.original.id!)}
           >
-            Delete
+            Удалить
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -457,7 +459,7 @@ export function AzotDataTable() {
         
         if (!parsed.success) {
           console.error('Schema validation error:', parsed.error);
-          throw new Error(`Invalid API response: ${parsed.error.message}`)
+          throw new Error(`Неверный ответ API: ${parsed.error.message}`)
         }
         
         if (parsed.data.success) {
@@ -466,12 +468,12 @@ export function AzotDataTable() {
           setTotalRows(parsed.data.data.total)
           setPageCount(parsed.data.data.last_page)
         } else {
-          throw new Error("API returned success: false")
+          throw new Error("API вернул success: false")
         }
       } catch (err: any) {
         console.error('Error fetching azots:', err);
-        setError(err.message || "Error fetching azots")
-        toast.error(err.message || "Error fetching azots")
+        setError(err.message || "Ошибка получения данных азота")
+        toast.error(err.message || "Ошибка получения данных азота")
         setData([])
       } finally {
         setLoading(false)
@@ -544,28 +546,28 @@ export function AzotDataTable() {
       
       console.log('Submit response:', response.data);
       
-      toast.success(editingAzot ? "Azot updated successfully" : "Azot created successfully")
+      toast.success(editingAzot ? "Азот успешно обновлен" : "Азот успешно создан")
       setDrawerOpen(false)
       setEditingAzot(null)
       setImagePreview(null)
       fetchAzots()
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || err.message || "Error saving azot"
+      const errorMessage = err.response?.data?.message || err.message || "Ошибка сохранения азота"
       toast.error(errorMessage)
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this azot?")) return
+    if (!confirm("Вы уверены, что хотите удалить этот азот?")) return
     try {
       const response = await api.delete(`/azots/${id}`)
       console.log('Delete response:', response.data);
-      toast.success("Azot deleted successfully")
+      toast.success("Азот успешно удален")
       fetchAzots()
     } catch (err: any) {
       console.error('Delete error:', err);
-      const errorMessage = err.response?.data?.message || "Error deleting azot"
+      const errorMessage = err.response?.data?.message || "Ошибка удаления азота"
       toast.error(errorMessage)
     }
   }
@@ -602,7 +604,7 @@ export function AzotDataTable() {
           <div className="relative flex-1 min-w-[200px]">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search azots..."
+              placeholder="Поиск азота..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -618,12 +620,12 @@ export function AzotDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Type" />
+              <SelectValue placeholder="Тип" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="fertilizer">Fertilizer</SelectItem>
-              <SelectItem value="supplement">Supplement</SelectItem>
+              <SelectItem value="all">Все типы</SelectItem>
+              <SelectItem value="fertilizer">Удобрение</SelectItem>
+              <SelectItem value="supplement">Добавка</SelectItem>
             </SelectContent>
           </Select> */}
           <Select
@@ -636,13 +638,13 @@ export function AzotDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Country" />
+              <SelectValue placeholder="Страна" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Countries</SelectItem>
-              <SelectItem value="uzbekistan">Uzbekistan</SelectItem>
-              <SelectItem value="russia">Russia</SelectItem>
-              <SelectItem value="china">China</SelectItem>
+              <SelectItem value="all">Все страны</SelectItem>
+              <SelectItem value="uzbekistan">Узбекистан</SelectItem>
+              <SelectItem value="russia">Россия</SelectItem>
+              <SelectItem value="china">Китай</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -655,12 +657,12 @@ export function AzotDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Статус" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="archive">Archive</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="active">Активный</SelectItem>
+              <SelectItem value="archive">Архив</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -669,27 +671,39 @@ export function AzotDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Столбцы
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id.charAt(0).toUpperCase() + column.id.slice(1).replace('_', ' ')}
-                  </DropdownMenuCheckboxItem>
-                ))}
+                .map((column) => {
+                  const columnLabels: Record<string, string> = {
+                    image: "Изображение",
+                    title: "Название",
+                    type: "Тип",
+                    country: "Страна",
+                    price_types: "Цены",
+                    status: "Статус",
+                    created_at: "Создано"
+                  };
+                  
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    >
+                      {columnLabels[column.id] || column.id.charAt(0).toUpperCase() + column.id.slice(1).replace('_', ' ')}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={handleAdd}>
             <IconPlus className="mr-2 h-4 w-4" />
-            Add Azot
+            Добавить азот
           </Button>
         </div>
       </div>
@@ -744,7 +758,7 @@ export function AzotDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No azots found.
+                  Азот не найден.
                 </TableCell>
               </TableRow>
             )}
@@ -754,11 +768,11 @@ export function AzotDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк(и) выбрано.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -776,7 +790,7 @@ export function AzotDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -821,10 +835,10 @@ export function AzotDataTable() {
         <DrawerContent className="h-full max-h-screen">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-2">
-              {editingAzot ? "Edit Azot" : "Create Azot"}
+              {editingAzot ? "Редактировать азот" : "Создать азот"}
               {editingAzot && <Badge variant="outline">ID: {editingAzot.id}</Badge>}
             </DrawerTitle>
-            <DrawerDescription>Fill in the azot details below.</DrawerDescription>
+            <DrawerDescription>Заполните детали азота ниже.</DrawerDescription>
           </DrawerHeader>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -834,28 +848,28 @@ export function AzotDataTable() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconTag className="h-5 w-5" />
-                    Basic Information
+                    Основная информация
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Title *</Label>
+                      <Label htmlFor="title">Название *</Label>
                       <Input 
                         id="title" 
                         {...form.register("title")} 
-                        placeholder="Azot fertilizer name"
+                        placeholder="Название азотного удобрения"
                       />
                       {form.formState.errors.title && (
                         <p className="text-destructive text-sm">{form.formState.errors.title.message}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="type">Type *</Label>
+                      <Label htmlFor="type">Тип *</Label>
                       <Input 
                         id="type" 
                         {...form.register("type")} 
-                        placeholder="e.g. Fertilizer, Supplement"
+                        placeholder="напр. Удобрение, Добавка"
                       />
                       {form.formState.errors.type && (
                         <p className="text-destructive text-sm">{form.formState.errors.type.message}</p>
@@ -865,18 +879,18 @@ export function AzotDataTable() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="country">Country *</Label>
+                      <Label htmlFor="country">Страна *</Label>
                       <Input 
                         id="country" 
                         {...form.register("country")} 
-                        placeholder="e.g. Uzbekistan, Russia"
+                        placeholder="напр. Узбекистан, Россия"
                       />
                       {form.formState.errors.country && (
                         <p className="text-destructive text-sm">{form.formState.errors.country.message}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="status">Status</Label>
+                      <Label htmlFor="status">Статус</Label>
                       <Select
                         onValueChange={(value) => form.setValue("status", value as "active" | "archive")}
                         value={form.watch("status")}
@@ -885,19 +899,19 @@ export function AzotDataTable() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="archive">Archive</SelectItem>
+                          <SelectItem value="active">Активный</SelectItem>
+                          <SelectItem value="archive">Архив</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">Описание</Label>
                     <Textarea 
                       id="description" 
                       {...form.register("description")} 
-                      placeholder="Detailed description of the azot product..."
+                      placeholder="Подробное описание азотного продукта..."
                       rows={3}
                     />
                   </div>
@@ -909,12 +923,12 @@ export function AzotDataTable() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconPhoto className="h-5 w-5" />
-                    Product Image
+                    Изображение продукта
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="image">Image</Label>
+                    <Label htmlFor="image">Изображение</Label>
                     <Input 
                       id="image"
                       type="file"
@@ -923,7 +937,7 @@ export function AzotDataTable() {
                       className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Supported formats: JPEG, PNG, GIF, WebP, BMP, TIFF, SVG (Max: 30MB)
+                      Поддерживаемые форматы: JPEG, PNG, GIF, WebP, BMP, TIFF, SVG (Макс: 30МБ)
                     </p>
                   </div>
                   
@@ -931,7 +945,7 @@ export function AzotDataTable() {
                     <div className="relative inline-block">
                       <img 
                         src={imagePreview} 
-                        alt="Preview" 
+                        alt="Предварительный просмотр" 
                         className="w-32 h-32 object-cover rounded-lg border"
                       />
                       <Button
@@ -956,18 +970,18 @@ export function AzotDataTable() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <IconCurrencyDollar className="h-5 w-5" />
-                    Price Types
+                    Типы цен
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Add different price types for this azot product (e.g. Wholesale, Retail, Bulk)
+                    Добавить различные типы цен для этого азотного продукта (например, Оптовая, Розничная, Крупный опт)
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {priceTypeFields.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       <IconCurrencyDollar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No price types added yet</p>
-                      <p className="text-xs">Click "Add Price Type" to get started</p>
+                      <p>Типы цен еще не добавлены</p>
+                      <p className="text-xs">Нажмите "Добавить тип цены" чтобы начать</p>
                     </div>
                   )}
 
@@ -977,11 +991,11 @@ export function AzotDataTable() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor={`price_types.${index}.name`}>
-                              Type Name *
+                              Название типа *
                             </Label>
                             <Input
                               {...form.register(`price_types.${index}.name`)}
-                              placeholder="e.g. Wholesale, Retail, Bulk"
+                              placeholder="напр. Оптовая, Розничная, Крупный опт"
                             />
                             {form.formState.errors.price_types?.[index]?.name && (
                               <p className="text-destructive text-sm">
@@ -991,7 +1005,7 @@ export function AzotDataTable() {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor={`price_types.${index}.price`}>
-                              Price (USD) *
+                              Цена (USD) *
                             </Label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
@@ -1031,7 +1045,7 @@ export function AzotDataTable() {
                     className="w-full"
                   >
                     <IconPlus className="mr-2 h-4 w-4" />
-                    Add Price Type
+                    Добавить тип цены
                   </Button>
                 </CardContent>
               </Card>
@@ -1047,10 +1061,10 @@ export function AzotDataTable() {
                 disabled={loading}
                 className="flex-1"
               >
-                {loading ? "Saving..." : editingAzot ? "Update Azot" : "Create Azot"}
+                {loading ? "Сохранение..." : editingAzot ? "Обновить азот" : "Создать азот"}
               </Button>
               <DrawerClose asChild>
-                <Button variant="outline" className="flex-1">Cancel</Button>
+                <Button variant="outline" className="flex-1">Отмена</Button>
               </DrawerClose>
             </div>
           </DrawerFooter>

@@ -76,7 +76,7 @@ import api from "@/lib/api"
 // Service schema
 const serviceSchema = z.object({
   id: z.number().optional(),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Имя обязательно"),
   price: z.union([z.number(), z.string()]).transform((val) => {
     if (typeof val === "string") {
       const parsed = parseFloat(val);
@@ -90,8 +90,8 @@ const serviceSchema = z.object({
 })
 
 const serviceFormSchema = serviceSchema.extend({
-  name: z.string().min(1, "Name is required"),
-  price: z.number().min(0, "Price must be at least 0"), // Form uchun number qoladi
+  name: z.string().min(1, "Имя обязательно"),
+  price: z.number().min(0, "Цена должна быть не менее 0"), // Form uchun number qoladi
 })
 
 // Laravel pagination response schema
@@ -134,7 +134,7 @@ const columns: ColumnDef<Service>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -143,7 +143,7 @@ const columns: ColumnDef<Service>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -173,7 +173,7 @@ const columns: ColumnDef<Service>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Service Name
+        Название услуги
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -197,7 +197,7 @@ const columns: ColumnDef<Service>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Price
+        Цена
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -211,7 +211,7 @@ const columns: ColumnDef<Service>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       const variant = status === "active" ? "default" : "secondary";
@@ -231,14 +231,14 @@ const columns: ColumnDef<Service>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Дата создания
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => {
       const date = row.original.created_at;
-      return date ? new Date(date).toLocaleDateString() : "N/A";
+      return date ? new Date(date).toLocaleDateString() : "Н/Д";
     },
     enableSorting: true,
   },
@@ -249,19 +249,19 @@ const columns: ColumnDef<Service>[] = [
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" className="size-8">
             <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Открыть меню</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => globalHandleEdit(row.original)}>
-            Edit
+            Редактировать
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
             onClick={() => globalHandleDelete(row.original.id!)}
           >
-            Delete
+            Удалить
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -366,7 +366,7 @@ export function ServiceDataTable() {
         
         if (!parsed.success) {
           console.error('Schema validation error:', parsed.error);
-          throw new Error(`Invalid API response: ${parsed.error.message}`)
+          throw new Error(`Неверный ответ API: ${parsed.error.message}`)
         }
         
         if (parsed.data.success) {
@@ -375,12 +375,12 @@ export function ServiceDataTable() {
           setTotalRows(parsed.data.data.total)
           setPageCount(parsed.data.data.last_page)
         } else {
-          throw new Error("API returned success: false")
+          throw new Error("API вернул success: false")
         }
       } catch (err: any) {
         console.error('Error fetching services:', err);
-        setError(err.message || "Error fetching services")
-        toast.error(err.message || "Error fetching services")
+        setError(err.message || "Ошибка загрузки услуг")
+        toast.error(err.message || "Ошибка загрузки услуг")
         setData([])
       } finally {
         setLoading(false)
@@ -405,27 +405,27 @@ export function ServiceDataTable() {
       
       console.log('Submit response:', response.data);
       
-      toast.success(editingService ? "Service updated successfully" : "Service created successfully");
+      toast.success(editingService ? "Услуга успешно обновлена" : "Услуга успешно создана");
       setDrawerOpen(false);
       setEditingService(null);
       fetchServices();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || err.message || "Error saving service";
+      const errorMessage = err.response?.data?.message || err.message || "Ошибка сохранения услуги";
       toast.error(errorMessage);
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this service?")) return
+    if (!confirm("Вы уверены, что хотите удалить эту услугу?")) return
     try {
       const response = await api.delete(`/services/${id}`)
       console.log('Delete response:', response.data);
-      toast.success("Service deleted successfully")
+      toast.success("Услуга успешно удалена")
       fetchServices()
     } catch (err: any) {
       console.error('Delete error:', err);
-      const errorMessage = err.response?.data?.message || "Error deleting service"
+      const errorMessage = err.response?.data?.message || "Ошибка удаления услуги"
       toast.error(errorMessage)
     }
   }
@@ -454,7 +454,7 @@ export function ServiceDataTable() {
           <div className="relative flex-1">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search services..."
+              placeholder="Поиск услуг..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -470,12 +470,12 @@ export function ServiceDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Статус" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="archive">Archive</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="active">Активен</SelectItem>
+              <SelectItem value="archive">Архив</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -484,7 +484,7 @@ export function ServiceDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Столбцы
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -497,14 +497,14 @@ export function ServiceDataTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id === "name" ? "Service Name" : column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                    {column.id === "name" ? "Название услуги" : column.id.charAt(0).toUpperCase() + column.id.slice(1)}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={handleAdd}>
             <IconPlus className="mr-2 h-4 w-4" />
-            Add Service
+            Добавить услугу
           </Button>
         </div>
       </div>
@@ -559,7 +559,7 @@ export function ServiceDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No services found.
+                  Услуги не найдены.
                 </TableCell>
               </TableRow>
             )}
@@ -569,11 +569,11 @@ export function ServiceDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк выбрано.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -591,7 +591,7 @@ export function ServiceDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -635,20 +635,20 @@ export function ServiceDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>{editingService ? "Edit Service" : "Create Service"}</DrawerTitle>
-            <DrawerDescription>Fill in the service details below.</DrawerDescription>
+            <DrawerTitle>{editingService ? "Редактировать услугу" : "Создать услугу"}</DrawerTitle>
+            <DrawerDescription>Заполните данные услуги ниже.</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4 overflow-y-auto">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Service Name *</Label>
-              <Input id="name" {...form.register("name")} placeholder="Enter service name" />
+              <Label htmlFor="name">Название услуги *</Label>
+              <Input id="name" {...form.register("name")} placeholder="Введите название услуги" />
               {form.formState.errors.name && (
                 <p className="text-destructive text-sm">{form.formState.errors.name.message}</p>
               )}
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="price">Price *</Label>
+              <Label htmlFor="price">Цена *</Label>
               <Input 
                 id="price" 
                 type="number" 
@@ -662,7 +662,7 @@ export function ServiceDataTable() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Статус</Label>
               <Select
                 onValueChange={(value) => form.setValue("status", value as "active" | "archive")}
                 value={form.watch("status")}
@@ -671,18 +671,18 @@ export function ServiceDataTable() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="archive">Archive</SelectItem>
+                  <SelectItem value="active">Активен</SelectItem>
+                  <SelectItem value="archive">Архив</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </form>
           <DrawerFooter>
             <Button type="submit" onClick={form.handleSubmit(handleSubmit)} disabled={loading}>
-              {editingService ? "Update Service" : "Create Service"}
+              {editingService ? "Обновить услугу" : "Создать услугу"}
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Отмена</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

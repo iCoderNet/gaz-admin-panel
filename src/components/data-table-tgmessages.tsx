@@ -155,7 +155,7 @@ const columns: ColumnDef<MessageBatch>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -164,7 +164,7 @@ const columns: ColumnDef<MessageBatch>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -179,7 +179,7 @@ const columns: ColumnDef<MessageBatch>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Batch ID
+        ID пакета
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -189,7 +189,7 @@ const columns: ColumnDef<MessageBatch>[] = [
   },
   {
     accessorKey: "message",
-    header: "Message",
+    header: "Сообщение",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-blue-100 rounded-md border flex items-center justify-center">
@@ -200,7 +200,7 @@ const columns: ColumnDef<MessageBatch>[] = [
             {row.original.message}
           </div>
           <div className="text-sm text-muted-foreground">
-            {row.original.message.length} characters
+            {row.original.message.length} символов
           </div>
         </div>
       </div>
@@ -209,14 +209,14 @@ const columns: ColumnDef<MessageBatch>[] = [
   },
   {
     accessorKey: "stats",
-    header: "Recipients",
+    header: "Получатели",
     cell: ({ row }) => {
       const stats = row.original.stats;
       return (
         <div className="flex items-center gap-2">
           <IconUsers className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium">{stats.total}</span>
-          <span className="text-muted-foreground">users</span>
+          <span className="text-muted-foreground">пользователей</span>
         </div>
       );
     },
@@ -224,7 +224,7 @@ const columns: ColumnDef<MessageBatch>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       const stats = row.original.stats;
@@ -269,18 +269,18 @@ const columns: ColumnDef<MessageBatch>[] = [
   },
   {
     accessorKey: "creator",
-    header: "Created By",
+    header: "Создано",
     cell: ({ row }) => {
       const creator = row.original.creator;
       return (
         <div className="text-sm">
           {creator ? (
             <div>
-              <div className="font-medium">{creator.username || "No username"}</div>
+              <div className="font-medium">{creator.username || "Нет имени пользователя"}</div>
               <div className="text-muted-foreground">{creator.phone || creator.tg_id}</div>
             </div>
           ) : (
-            <span className="text-muted-foreground">Unknown</span>
+            <span className="text-muted-foreground">Неизвестно</span>
           )}
         </div>
       );
@@ -294,7 +294,7 @@ const columns: ColumnDef<MessageBatch>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Дата создания
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -317,13 +317,13 @@ const columns: ColumnDef<MessageBatch>[] = [
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" className="size-8">
             <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Открыть меню</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => globalHandleView(row.original)}>
             <IconEye className="mr-2 h-4 w-4" />
-            View Details
+            Посмотреть детали
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -499,13 +499,13 @@ export function TelegramMessagesDataTable() {
       
       console.log('Submit response:', response.data);
       
-      toast.success("Message sending started successfully");
+      toast.success("Отправка сообщения успешно начата");
       setCreateDrawerOpen(false);
       form.reset();
       fetchMessageBatches();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || err.message || "Error sending message";
+      const errorMessage = err.response?.data?.message || err.message || "Ошибка при отправке сообщения";
       toast.error(errorMessage);
     }
   }
@@ -524,7 +524,7 @@ export function TelegramMessagesDataTable() {
       }
     } catch (err) {
       console.error('Error fetching batch details:', err);
-      toast.error("Error fetching batch details")
+      toast.error("Ошибка при получении деталей пакета")
     }
     setDrawerOpen(true)
   }
@@ -545,7 +545,7 @@ export function TelegramMessagesDataTable() {
           <div className="relative flex-1">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search messages..."
+              placeholder="Поиск сообщений..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -561,14 +561,14 @@ export function TelegramMessagesDataTable() {
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Статус" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="pending">В ожидании</SelectItem>
+              <SelectItem value="processing">В обработке</SelectItem>
+              <SelectItem value="completed">Завершено</SelectItem>
+              <SelectItem value="failed">Неудачно</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -577,7 +577,7 @@ export function TelegramMessagesDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Колонки
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -590,9 +590,9 @@ export function TelegramMessagesDataTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id === "message" ? "Message" : 
-                     column.id === "stats" ? "Recipients" :
-                     column.id === "creator" ? "Created By" :
+                    {column.id === "message" ? "Сообщение" : 
+                     column.id === "stats" ? "Получатели" :
+                     column.id === "creator" ? "Создано" :
                      column.id.charAt(0).toUpperCase() + column.id.slice(1).replace('_', ' ')}
                   </DropdownMenuCheckboxItem>
                 ))}
@@ -600,7 +600,7 @@ export function TelegramMessagesDataTable() {
           </DropdownMenu>
           <Button onClick={handleAdd}>
             <IconPlus className="mr-2 h-4 w-4" />
-            Send Message
+            Отправить сообщение
           </Button>
         </div>
       </div>
@@ -655,7 +655,7 @@ export function TelegramMessagesDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No message batches found.
+                  Пакеты сообщений не найдены.
                 </TableCell>
               </TableRow>
             )}
@@ -665,11 +665,11 @@ export function TelegramMessagesDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк выбрано.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -687,7 +687,7 @@ export function TelegramMessagesDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -732,19 +732,19 @@ export function TelegramMessagesDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Message Batch Details</DrawerTitle>
-            <DrawerDescription>View message batch information and recipients.</DrawerDescription>
+            <DrawerTitle>Детали пакета сообщений</DrawerTitle>
+            <DrawerDescription>Просмотр информации о пакете сообщений и получателях.</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 overflow-y-auto">
             {viewingBatch && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Batch ID</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">ID пакета</Label>
                     <p className="font-mono">#{viewingBatch.id}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Статус</Label>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant={viewingBatch.status === "completed" ? "default" : "secondary"}>
                         {viewingBatch.status}
@@ -752,47 +752,47 @@ export function TelegramMessagesDataTable() {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Created By</Label>
-                    <p>{viewingBatch.creator?.username || "Unknown"}</p>
+                    <Label className="text-sm font-medium text-muted-foreground">Создано</Label>
+                    <p>{viewingBatch.creator?.username || "Неизвестно"}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Created At</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Дата создания</Label>
                     <p>{new Date(viewingBatch.created_at).toLocaleString()}</p>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Message</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Сообщение</Label>
                   <div className="mt-1 p-3 bg-muted rounded-md">
                     <p className="whitespace-pre-wrap">{viewingBatch.message}</p>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Delivery Statistics</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Статистика доставки</Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                     <div className="text-center p-3 bg-muted rounded-md">
                       <div className="text-2xl font-bold">{viewingBatch.stats.total}</div>
-                      <div className="text-sm text-muted-foreground">Total</div>
+                      <div className="text-sm text-muted-foreground">Всего</div>
                     </div>
                     <div className="text-center p-3 bg-green-50 rounded-md">
                       <div className="text-2xl font-bold text-green-600">{viewingBatch.stats.success}</div>
-                      <div className="text-sm text-muted-foreground">Success</div>
+                      <div className="text-sm text-muted-foreground">Успешно</div>
                     </div>
                     <div className="text-center p-3 bg-red-50 rounded-md">
                       <div className="text-2xl font-bold text-red-600">{viewingBatch.stats.failed}</div>
-                      <div className="text-sm text-muted-foreground">Failed</div>
+                      <div className="text-sm text-muted-foreground">Неудачно</div>
                     </div>
                     <div className="text-center p-3 bg-yellow-50 rounded-md">
                       <div className="text-2xl font-bold text-yellow-600">{viewingBatch.stats.pending}</div>
-                      <div className="text-sm text-muted-foreground">Pending</div>
+                      <div className="text-sm text-muted-foreground">В ожидании</div>
                     </div>
                   </div>
                 </div>
 
                 {batchDetails?.users && (
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Recipients ({batchDetails.users.length})</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Получатели ({batchDetails.users.length})</Label>
                     <div className="mt-2 max-h-40 overflow-y-auto border rounded-md">
                       {batchDetails.users.map((user: any) => (
                         <div key={user.id} className="p-2 border-b last:border-b-0 flex items-center gap-2">
@@ -800,9 +800,9 @@ export function TelegramMessagesDataTable() {
                             <IconUsers className="h-3 w-3 text-blue-600" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium text-sm">{user.username || `User ${user.tg_id}`}</div>
+                            <div className="font-medium text-sm">{user.username || `Пользователь ${user.tg_id}`}</div>
                             <div className="text-xs text-muted-foreground">
-                              TG ID: {user.tg_id} • {user.phone || user.address || "No contact info"}
+                              TG ID: {user.tg_id} • {user.phone || user.address || "Нет контактов"}
                             </div>
                           </div>
                         </div>
@@ -815,7 +815,7 @@ export function TelegramMessagesDataTable() {
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline">Закрыть</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
@@ -825,16 +825,16 @@ export function TelegramMessagesDataTable() {
       <Drawer open={createDrawerOpen} onOpenChange={setCreateDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Send Telegram Message</DrawerTitle>
-            <DrawerDescription>Compose and send a message to selected users or all users.</DrawerDescription>
+            <DrawerTitle>Отправить сообщение в Telegram</DrawerTitle>
+            <DrawerDescription>Создайте и отправьте сообщение выбранным пользователям или всем пользователям.</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4 overflow-y-auto">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="message">Message *</Label>
+              <Label htmlFor="message">Сообщение *</Label>
               <Textarea 
                 id="message" 
                 {...form.register("message")} 
-                placeholder="Enter your message here..."
+                placeholder="Введите ваше сообщение..."
                 rows={6}
                 className="resize-none"
               />
@@ -850,9 +850,9 @@ export function TelegramMessagesDataTable() {
             
             <div className="flex items-center justify-between p-3 border rounded-md">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="send_to_all">Send to All Users</Label>
+                <Label htmlFor="send_to_all">Отправить всем пользователям</Label>
                 <p className="text-sm text-muted-foreground">
-                  Send this message to all registered users
+                  Отправить это сообщение всем зарегистрированным пользователям
                 </p>
               </div>
               <Switch
@@ -864,11 +864,11 @@ export function TelegramMessagesDataTable() {
 
             {!form.watch("send_to_all") && (
               <div className="flex flex-col gap-2">
-                <Label>Select Recipients</Label>
+                <Label>Выбрать получателей</Label>
                 <div className="relative">
                   <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    placeholder="Search users..."
+                    placeholder="Поиск пользователей..."
                     value={userSearchQuery}
                     onChange={(e) => setUserSearchQuery(e.target.value)}
                     className="pl-8 mb-2"
@@ -879,7 +879,7 @@ export function TelegramMessagesDataTable() {
                     <div className="text-center text-muted-foreground py-4">
                       <div className="flex items-center justify-center gap-2">
                         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                        Searching users...
+                        Поиск пользователей...
                       </div>
                     </div>
                   ) : filteredUsers.length > 0 ? (
@@ -901,29 +901,29 @@ export function TelegramMessagesDataTable() {
                           htmlFor={`user-${user.id}`}
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                         >
-                          <div>{user.username || user.name || `User ${user.tg_id}`}</div>
+                          <div>{user.username || user.name || `Пользователь ${user.tg_id}`}</div>
                           <div className="text-xs text-muted-foreground">
-                            TG ID: {user.tg_id} • {user.phone || user.email || "No contact"}
+                            TG ID: {user.tg_id} • {user.phone || user.email || "Нет контакта"}
                           </div>
                         </label>
                       </div>
                     ))
                   ) : userSearchQuery ? (
                     <div className="text-center text-muted-foreground py-4">
-                      No users found matching "{userSearchQuery}"
+                      Пользователи по запросу "{userSearchQuery}" не найдены
                     </div>
                   ) : (
                     <div className="text-center text-muted-foreground py-4">
-                      No users found
+                      Пользователи не найдены
                     </div>
                   )}
                 </div>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
-                  <span>{form.watch("tg_ids")?.length || 0} selected</span>
-                  <span>{filteredUsers.length} of {allUsers.length} users</span>
+                  <span>{form.watch("tg_ids")?.length || 0} выбрано</span>
+                  <span>{filteredUsers.length} из {allUsers.length} пользователей</span>
                 </div>
                 {!form.watch("send_to_all") && (!form.watch("tg_ids") || form.watch("tg_ids")?.length === 0) && (
-                  <p className="text-destructive text-sm">Please select at least one recipient or enable "Send to All Users"</p>
+                  <p className="text-destructive text-sm">Пожалуйста, выберите хотя бы одного получателя или включите "Отправить всем пользователям"</p>
                 )}
               </div>
             )}
@@ -931,11 +931,11 @@ export function TelegramMessagesDataTable() {
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-md">
               <IconSend className="h-4 w-4 text-blue-600" />
               <div className="text-sm">
-                <div className="font-medium text-blue-800">Ready to send</div>
+                <div className="font-medium text-blue-800">Готово к отправке</div>
                 <div className="text-blue-600">
                   {form.watch("send_to_all") 
-                    ? `Message will be sent to all ${allUsers.length} users`
-                    : `Message will be sent to ${form.watch("tg_ids")?.length || 0} selected users`
+                    ? `Сообщение будет отправлено всем ${allUsers.length} пользователям`
+                    : `Сообщение будет отправлено ${form.watch("tg_ids")?.length || 0} выбранным пользователям`
                   }
                 </div>
               </div>
@@ -948,10 +948,10 @@ export function TelegramMessagesDataTable() {
               disabled={loading || (!form.watch("send_to_all") && (!form.watch("tg_ids") || form.watch("tg_ids")?.length === 0))}
             >
               <IconSend className="mr-2 h-4 w-4" />
-              Send Message
+              Отправить сообщение
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Отмена</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

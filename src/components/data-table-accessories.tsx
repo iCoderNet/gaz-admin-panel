@@ -78,7 +78,7 @@ import api from "@/lib/api"
 // Accessory schema
 const accessorySchema = z.object({
   id: z.number().optional(),
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, "Заголовок обязателен"),
   description: z.string().optional().nullable(),
   price: z.union([z.number(), z.string()]).transform((val) => {
     if (typeof val === "string") {
@@ -95,7 +95,7 @@ const accessorySchema = z.object({
 })
 
 const accessoryFormSchema = accessorySchema.extend({
-  price: z.number().min(0, "Price must be at least 0"), // Form uchun number qoladi
+  price: z.number().min(0, "Цена должна быть не менее 0"), // Form uchun number qoladi
   image_file: z.any().optional(), // File input uchun
 })
 
@@ -139,7 +139,7 @@ const columns: ColumnDef<Accessory>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -148,7 +148,7 @@ const columns: ColumnDef<Accessory>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -158,7 +158,7 @@ const columns: ColumnDef<Accessory>[] = [
   },
   {
     accessorKey: "image",
-    header: "Image",
+    header: "Изображение",
     cell: ({ row }) => (
       <div className="flex items-center justify-center">
         {row.original.image ? (
@@ -193,7 +193,7 @@ const columns: ColumnDef<Accessory>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Title
+        Название
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -207,10 +207,10 @@ const columns: ColumnDef<Accessory>[] = [
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "Описание",
     cell: ({ row }) => (
       <div className="max-w-[250px] truncate text-muted-foreground" title={row.original.description || ""}>
-        {row.original.description || "N/A"}
+        {row.original.description || "Н/Д"}
       </div>
     ),
     enableSorting: false,
@@ -222,7 +222,7 @@ const columns: ColumnDef<Accessory>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Price
+        Цена
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -236,14 +236,15 @@ const columns: ColumnDef<Accessory>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       const variant = status === "active" ? "default" : "secondary";
+      const statusText = status === "active" ? "активный" : "архив";
       
       return (
         <Badge variant={variant} className="capitalize">
-          {status}
+          {statusText}
         </Badge>
       );
     },
@@ -256,14 +257,14 @@ const columns: ColumnDef<Accessory>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Создано
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
     ),
     cell: ({ row }) => {
       const date = row.original.created_at;
-      return date ? new Date(date).toLocaleDateString() : "N/A";
+      return date ? new Date(date).toLocaleDateString() : "Н/Д";
     },
     enableSorting: true,
   },
@@ -274,19 +275,19 @@ const columns: ColumnDef<Accessory>[] = [
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" className="size-8">
             <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Открыть меню</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => globalHandleEdit(row.original)}>
-            Edit
+            Редактировать
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
             onClick={() => globalHandleDelete(row.original.id!)}
           >
-            Delete
+            Удалить
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -404,7 +405,7 @@ export function AccessoryDataTable() {
         
         if (!parsed.success) {
           console.error('Schema validation error:', parsed.error);
-          throw new Error(`Invalid API response: ${parsed.error.message}`)
+          throw new Error(`Неверный ответ API: ${parsed.error.message}`)
         }
         
         if (parsed.data.success) {
@@ -413,12 +414,12 @@ export function AccessoryDataTable() {
           setTotalRows(parsed.data.data.total)
           setPageCount(parsed.data.data.last_page)
         } else {
-          throw new Error("API returned success: false")
+          throw new Error("API вернул success: false")
         }
       } catch (err: any) {
         console.error('Error fetching accessories:', err);
-        setError(err.message || "Error fetching accessories")
-        toast.error(err.message || "Error fetching accessories")
+        setError(err.message || "Ошибка получения аксессуаров")
+        toast.error(err.message || "Ошибка получения аксессуаров")
         setData([])
       } finally {
         setLoading(false)
@@ -437,14 +438,14 @@ export function AccessoryDataTable() {
     if (file) {
       // File size check (30MB = 30 * 1024 * 1024 bytes)
       if (file.size > 30 * 1024 * 1024) {
-        toast.error("File size must be less than 30MB");
+        toast.error("Размер файла должен быть менее 30МБ");
         return;
       }
       
       // File type check
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff', 'image/svg+xml'];
       if (!allowedTypes.includes(file.type)) {
-        toast.error("Invalid file type. Only JPEG, PNG, JPG, GIF, WEBP, BMP, TIFF, SVG are allowed.");
+        toast.error("Недопустимый тип файла. Разрешены только JPEG, PNG, JPG, GIF, WEBP, BMP, TIFF, SVG.");
         return;
       }
 
@@ -499,28 +500,28 @@ export function AccessoryDataTable() {
       
       console.log('Submit response:', response.data);
       
-      toast.success(editingAccessory ? "Accessory updated successfully" : "Accessory created successfully");
+      toast.success(editingAccessory ? "Аксессуар успешно обновлен" : "Аксессуар успешно создан");
       setDrawerOpen(false);
       setEditingAccessory(null);
       setImagePreview(null);
       fetchAccessories();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || err.message || "Error saving accessory";
+      const errorMessage = err.response?.data?.message || err.message || "Ошибка сохранения аксессуара";
       toast.error(errorMessage);
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this accessory?")) return
+    if (!confirm("Вы уверены, что хотите удалить этот аксессуар?")) return
     try {
       const response = await api.delete(`/accessories/${id}`)
       console.log('Delete response:', response.data);
-      toast.success("Accessory deleted successfully")
+      toast.success("Аксессуар успешно удален")
       fetchAccessories()
     } catch (err: any) {
       console.error('Delete error:', err);
-      const errorMessage = err.response?.data?.message || "Error deleting accessory"
+      const errorMessage = err.response?.data?.message || "Ошибка удаления аксессуара"
       toast.error(errorMessage)
     }
   }
@@ -549,7 +550,7 @@ export function AccessoryDataTable() {
           <div className="relative flex-1">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search accessories..."
+              placeholder="Поиск аксессуаров..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -565,12 +566,12 @@ export function AccessoryDataTable() {
             }
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Статус" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="archive">Archive</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="active">Активный</SelectItem>
+              <SelectItem value="archive">Архив</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -579,27 +580,38 @@ export function AccessoryDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Столбцы
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
-                  </DropdownMenuCheckboxItem>
-                ))}
+                .map((column) => {
+                  const columnLabels: Record<string, string> = {
+                    image: "Изображение",
+                    title: "Название",
+                    description: "Описание",
+                    price: "Цена",
+                    status: "Статус",
+                    created_at: "Создано"
+                  };
+                  
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    >
+                      {columnLabels[column.id] || column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={handleAdd}>
             <IconPlus className="mr-2 h-4 w-4" />
-            Add Accessory
+            Добавить аксессуар
           </Button>
         </div>
       </div>
@@ -654,7 +666,7 @@ export function AccessoryDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No accessories found.
+                  Аксессуары не найдены.
                 </TableCell>
               </TableRow>
             )}
@@ -664,11 +676,11 @@ export function AccessoryDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк(и) выбрано.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -686,7 +698,7 @@ export function AccessoryDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -730,22 +742,22 @@ export function AccessoryDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>{editingAccessory ? "Edit Accessory" : "Create Accessory"}</DrawerTitle>
-            <DrawerDescription>Fill in the accessory details below.</DrawerDescription>
+            <DrawerTitle>{editingAccessory ? "Редактировать аксессуар" : "Создать аксессуар"}</DrawerTitle>
+            <DrawerDescription>Заполните детали аксессуара ниже.</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4 overflow-y-auto">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="title">Title *</Label>
-              <Input id="title" {...form.register("title")} placeholder="Accessory title" />
+              <Label htmlFor="title">Название *</Label>
+              <Input id="title" {...form.register("title")} placeholder="Название аксессуара" />
               {form.formState.errors.title && (
                 <p className="text-destructive text-sm">{form.formState.errors.title.message}</p>
               )}
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Описание</Label>
               <Textarea 
-                id="description" 
+                id="description"
                 {...form.register("description")} 
                 placeholder="Accessory description" 
                 rows={3}
@@ -753,13 +765,13 @@ export function AccessoryDataTable() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="price">Price *</Label>
+              <Label htmlFor="price">Цена *</Label>
               <Input 
                 id="price" 
                 type="number" 
                 step="0.01" 
                 {...form.register("price", { valueAsNumber: true })} 
-                placeholder="0.00" 
+                placeholder="0" 
               />
               {form.formState.errors.price && (
                 <p className="text-destructive text-sm">{form.formState.errors.price.message}</p>
@@ -767,7 +779,7 @@ export function AccessoryDataTable() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="image">Image</Label>
+              <Label htmlFor="image">Изображение</Label>
               <Input 
                 id="image" 
                 type="file" 
@@ -776,7 +788,7 @@ export function AccessoryDataTable() {
                 onChange={handleImageChange}
               />
               <p className="text-xs text-muted-foreground">
-                Max size: 30MB. Formats: JPEG, PNG, JPG, GIF, WEBP, BMP, TIFF, SVG
+                Максимальный размер: 30 МБ. Форматы: JPEG, PNG, JPG, GIF, WEBP, BMP, TIFF, SVG.
               </p>
               {imagePreview && (
                 <div className="relative inline-block max-w-xs">
@@ -799,7 +811,7 @@ export function AccessoryDataTable() {
             </div>
             
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Статус</Label>
               <Select
                 onValueChange={(value) => form.setValue("status", value as "active" | "archive")}
                 value={form.watch("status")}
@@ -808,8 +820,8 @@ export function AccessoryDataTable() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="archive">Archive</SelectItem>
+                  <SelectItem value="active">Активный</SelectItem>
+                  <SelectItem value="archive">Архив</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -819,7 +831,7 @@ export function AccessoryDataTable() {
               {editingAccessory ? "Update Accessory" : "Create Accessory"}
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Отмена</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

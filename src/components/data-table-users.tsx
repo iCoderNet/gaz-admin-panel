@@ -75,7 +75,7 @@ import api from "@/lib/api"
 // User schema
 const userSchema = z.object({
   id: z.number().optional(),
-  tg_id: z.string().min(1, "TG ID is required"),
+  tg_id: z.string().min(1, "Telegram ID требуется"),
   username: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
@@ -91,7 +91,7 @@ const userFormSchema = userSchema.extend({
     .string()
     .optional()
     .refine((val) => val === undefined || val.length >= 6 || val.length === 0, {
-      message: "Password must be at least 6 characters if provided",
+      message: "Пароль должен содержать не менее 6 символов, если указан",
     }),
 })
 
@@ -135,7 +135,7 @@ const columns: ColumnDef<User>[] = [
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label="Выбрать все"
         />
       </div>
     ),
@@ -144,7 +144,7 @@ const columns: ColumnDef<User>[] = [
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label="Выбрать строку"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -159,7 +159,7 @@ const columns: ColumnDef<User>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        TG ID
+        Telegram ID 
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -174,7 +174,7 @@ const columns: ColumnDef<User>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Username
+        Имя пользователя
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -188,12 +188,12 @@ const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "phone",
-    header: "Phone",
+    header: "Телефон",
     cell: ({ row }) => <div>{row.original.phone || "N/A"}</div>,
   },
   {
     accessorKey: "address",
-    header: "Address",
+    header: "Адрес",
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate" title={row.original.address || ""}>
         {row.original.address || "N/A"}
@@ -202,29 +202,44 @@ const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => (
-      <Badge 
-        variant={row.original.role === "admin" ? "default" : "secondary"} 
-        className="capitalize"
-      >
-        {row.original.role}
-      </Badge>
-    ),
+    header: "Роль",
+    cell: ({ row }) => {
+      const role = row.original.role;
+
+      const roleLabels: Record<string, string> = {
+        admin: "Администратор",
+        user: "Пользователь",
+      };
+
+      return (
+        <Badge
+          variant={role === "admin" ? "default" : "secondary"}
+          className="capitalize"
+        >
+          {roleLabels[role as string] || role}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Статус",
     cell: ({ row }) => {
       const status = row.original.status;
       let variant: "default" | "secondary" | "destructive" = "secondary";
+
+      const statusLabels: Record<string, string> = {
+        active: "Активный",
+        inactive: "Неактивный",
+        blocked: "Заблокирован",
+      };
       
       if (status === "active") variant = "default";
       else if (status === "blocked") variant = "destructive";
       
       return (
         <Badge variant={variant} className="capitalize">
-          {status}
+          {statusLabels[status as string] || status}
         </Badge>
       );
     },
@@ -236,7 +251,7 @@ const columns: ColumnDef<User>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Created At
+        Дата создания
         {column.getIsSorted() === "asc" ? <IconChevronUp className="ml-2 h-4 w-4" /> : null}
         {column.getIsSorted() === "desc" ? <IconChevronDown className="ml-2 h-4 w-4" /> : null}
       </Button>
@@ -259,14 +274,14 @@ const columns: ColumnDef<User>[] = [
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => globalHandleEdit(row.original)}>
-            Edit
+            Редактировать
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
             onClick={() => globalHandleDelete(row.original.id!)}
           >
-            Delete
+            Удалить
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -424,7 +439,7 @@ export function UserDataTable() {
       console.log('Submit response:', response.data);
       
       if (response.data.success) {
-        toast.success(editingUser ? "User updated successfully" : "User created successfully")
+        toast.success(editingUser ? "Пользователь успешно обновлён" : "Пользователь успешно создан")
         setDrawerOpen(false)
         setEditingUser(null)
         // Ma'lumotlarni qayta yuklash
@@ -440,11 +455,11 @@ export function UserDataTable() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this user?")) return
+    if (!confirm("Вы уверены, что хотите удалить этого пользователя?")) return
     try {
       const response = await api.delete(`/users/${id}`)
       console.log('Delete response:', response.data);
-      toast.success("User deleted successfully")
+      toast.success("Пользователь успешно удалён")
       // Ma'lumotlarni qayta yuklash
       fetchUsers()
     } catch (err: any) {
@@ -478,7 +493,7 @@ export function UserDataTable() {
           <div className="relative flex-1">
             <IconSearch className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search users..."
+              placeholder="Поиск пользователей ..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8 md:w-64"
@@ -497,9 +512,9 @@ export function UserDataTable() {
               <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="all">Все роли</SelectItem>
+              <SelectItem value="admin">Администратор</SelectItem>
+              <SelectItem value="user">Пользователь</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -515,10 +530,10 @@ export function UserDataTable() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="blocked">Blocked</SelectItem>
+              <SelectItem value="all">Все статусы</SelectItem>
+              <SelectItem value="active">Активный</SelectItem>
+              <SelectItem value="inactive">Неактивный</SelectItem>
+              <SelectItem value="blocked">Заблокирован</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -527,7 +542,7 @@ export function UserDataTable() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns className="mr-2 h-4 w-4" />
-                Columns
+                Колонны
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -547,7 +562,7 @@ export function UserDataTable() {
           </DropdownMenu>
           <Button onClick={handleAdd}>
             <IconPlus className="mr-2 h-4 w-4" />
-            Add User
+            Добавить пользователя
           </Button>
         </div>
       </div>
@@ -602,7 +617,7 @@ export function UserDataTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No users found.
+                  Пользователи не найдены.
                 </TableCell>
               </TableRow>
             )}
@@ -612,11 +627,11 @@ export function UserDataTable() {
 
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s) selected.
+          Выбрано {table.getFilteredSelectedRowModel().rows.length} из {totalRows} строк.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Rows per page</Label>
+            <Label className="text-sm">Строк на странице</Label>
             <Select
               value={`${pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
@@ -634,7 +649,7 @@ export function UserDataTable() {
             </Select>
           </div>
           <div className="text-sm font-medium">
-            Page {pagination.pageIndex + 1} of {Math.max(pageCount, 1)}
+            Страница {pagination.pageIndex + 1} из {Math.max(pageCount, 1)}
           </div>
           <div className="flex gap-1">
             <Button
@@ -678,34 +693,34 @@ export function UserDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>{editingUser ? "Edit User" : "Create User"}</DrawerTitle>
-            <DrawerDescription>Fill in the user details below.</DrawerDescription>
+            <DrawerTitle>{editingUser ? "Редактировать пользователя" : "Создать пользователя"}</DrawerTitle>
+            <DrawerDescription>Заполните данные пользователя ниже.</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4 overflow-y-auto">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tg_id">TG ID *</Label>
+              <Label htmlFor="tg_id">Telegram ID *</Label>
               <Input id="tg_id" {...form.register("tg_id")} placeholder="Telegram user ID" />
               {form.formState.errors.tg_id && (
                 <p className="text-destructive text-sm">{form.formState.errors.tg_id.message}</p>
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Имя пользователя</Label>
               <Input id="username" {...form.register("username")} placeholder="@username" />
               {form.formState.errors.username && (
                 <p className="text-destructive text-sm">{form.formState.errors.username.message}</p>
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Телефон</Label>
               <Input id="phone" {...form.register("phone")} placeholder="+998901234567" />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Адрес</Label>
               <Input id="address" {...form.register("address")} placeholder="User address" />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">Роль</Label>
               <Select
                 onValueChange={(value) => form.setValue("role", value as "admin" | "user")}
                 value={form.watch("role")}
@@ -714,13 +729,13 @@ export function UserDataTable() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="admin">Администратор</SelectItem>
+                  <SelectItem value="user">Пользователь</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Статус</Label>
               <Select
                 onValueChange={(value) => form.setValue("status", value as "active" | "inactive" | "blocked")}
                 value={form.watch("status")}
@@ -729,21 +744,21 @@ export function UserDataTable() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="blocked">Blocked</SelectItem>
+                  <SelectItem value="active">Активный</SelectItem>
+                  <SelectItem value="inactive">Неактивный</SelectItem>
+                  <SelectItem value="blocked">Заблокирован</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="password">
-                Password {editingUser ? "(Leave blank to keep current)" : "*"}
+                Пароль {editingUser ? "(Оставьте пустым, чтобы сохранить текущий)" : "*"}
               </Label>
               <Input 
                 id="password" 
                 type="password" 
                 {...form.register("password")} 
-                placeholder={editingUser ? "Leave blank to keep current" : "Enter password"}
+                placeholder={editingUser ? "Оставьте пустым, чтобы сохранить текущий" : "Введите пароль"}
               />
               {form.formState.errors.password && (
                 <p className="text-destructive text-sm">{form.formState.errors.password.message}</p>
@@ -752,10 +767,10 @@ export function UserDataTable() {
           </form>
           <DrawerFooter>
             <Button type="submit" onClick={form.handleSubmit(handleSubmit)} disabled={loading}>
-              {editingUser ? "Update User" : "Create User"}
+              {editingUser ? "Обновить пользователя" : "Создать пользователя"}
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Отмена</Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

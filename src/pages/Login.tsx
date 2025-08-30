@@ -44,19 +44,19 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Admin Panel</CardTitle>
+          <CardTitle className="text-2xl font-bold">Админ-панель</CardTitle>
           <CardDescription>
-            Enter your credentials to access the dashboard
+            Введите свои учетные данные для доступа к панели управления
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="identifier">Username or Phone</Label>
+              <Label htmlFor="identifier">Имя пользователя или телефон</Label>
               <Input
                 id="identifier"
                 type="text"
-                placeholder="Enter your username or phone"
+                placeholder="Введите свое имя пользователя или номер телефона"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
@@ -65,12 +65,12 @@ const Login = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Пароль</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder="Введите ваш пароль"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -108,7 +108,7 @@ const Login = () => {
               ) : (
                 <LogIn className="h-4 w-4 mr-2" />
               )}
-              Sign In
+              Войти
             </Button>
           </form>
         </CardContent>
