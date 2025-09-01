@@ -139,6 +139,22 @@ const orderAccessorySchema = z.object({
     }
     return val;
   }),
+  accessory: z.object({
+    id: z.number(),
+    title: z.string(),
+    description: z.string().nullable(),
+    price: z.union([z.number(), z.string()]).transform((val) => {
+      if (typeof val === "string") {
+        const parsed = parseFloat(val);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return val;
+    }),
+    status: z.string(),
+    created_at: z.string().nullable(),
+    updated_at: z.string().nullable(),
+    image_url: z.string().nullable(),
+  }).optional(),
   created_at: z.string().optional().nullable(),
   updated_at: z.string().optional().nullable(),
 })
@@ -953,7 +969,7 @@ export function OrderDataTable() {
                     </CardHeader>
                     <CardContent className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <Label className="text-sm text-muted-foreground">Имя</Label>
+                        <Label className="text-sm text-muted-foreground">Имя пользователя</Label>
                         <div className="mt-1 text-sm">
                           {viewingOrder.user.full_name || viewingOrder.user.username || "Без имени"}
                         </div>
@@ -1132,7 +1148,7 @@ export function OrderDataTable() {
                               <div key={index} className="flex justify-between items-center p-3 bg-secondary border border-secondary rounded-lg">
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">
-                                    Аксессуар #{accessory.accessory_id}
+                                    {accessory.accessory?.title || 'Аксессуар'}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
                                     Количество: {accessory.count}
