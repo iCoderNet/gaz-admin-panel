@@ -83,6 +83,7 @@ import {
 } from "@tabler/icons-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/api"
+import PricePipe from "@/lib/price"
 
 // Order schemas with fixed cargo_price validation
 const orderAzotSchema = z.object({
@@ -218,6 +219,7 @@ const promocodeSchema = z.object({
 
 const orderSchema = z.object({
   id: z.number().optional(),
+  order_number: z.number(),
   user_id: z.number(),
   promocode_id: z.number().nullable().optional(),
   payment_type: z.string().nullable().optional(),
@@ -379,7 +381,7 @@ const columns: ColumnDef<Order>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-mono text-muted-foreground">
-        #{row.original.id}
+        #{row.original.order_number}
       </div>
     ),
     enableSorting: true,
@@ -455,9 +457,14 @@ const columns: ColumnDef<Order>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-medium text-muted-foreground">
-        {typeof row.original.all_price === 'string' 
-          ? parseFloat(row.original.all_price) 
-          : row.original.all_price} ₽
+        <PricePipe
+          value={
+            typeof row.original.all_price === 'string'
+              ? parseFloat(row.original.all_price)
+              : row.original.all_price
+          }
+          suffix="₽"
+        />
       </div>
     ),
     enableSorting: true,
@@ -476,9 +483,9 @@ const columns: ColumnDef<Order>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-bold text-green-600">
-        {typeof row.original.total_price === 'string' 
+        <PricePipe value={typeof row.original.total_price === 'string' 
           ? parseFloat(row.original.total_price) 
-          : row.original.total_price} ₽
+          : row.original.total_price} suffix="₽" />
       </div>
     ),
     enableSorting: true,
@@ -911,7 +918,7 @@ export function OrderDataTable() {
       <Drawer open={viewDrawerOpen} onOpenChange={setViewDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent className="max-w-full">
           <DrawerHeader>
-            <DrawerTitle>Детали заказа #{viewingOrder?.id}</DrawerTitle>
+            <DrawerTitle>Детали заказа #{viewingOrder?.order_number}</DrawerTitle>
             <DrawerDescription>Полная информация о заказе и товарах</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 overflow-y-auto max-h-[80vh]">
@@ -1057,9 +1064,9 @@ export function OrderDataTable() {
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Подытог:</span>
                       <span className="text-sm font-medium">
-                        {typeof viewingOrder.all_price === 'string' 
+                        <PricePipe value={typeof viewingOrder.all_price === 'string' 
                           ? parseFloat(viewingOrder.all_price) 
-                          : viewingOrder.all_price} ₽
+                          : viewingOrder.all_price} suffix="₽" />
                       </span>
                     </div>
                     {viewingOrder.cargo_price > 0 && (
@@ -1069,9 +1076,9 @@ export function OrderDataTable() {
                           Стоимость доставки:
                         </span>
                         <span className="text-sm">
-                          {typeof viewingOrder.cargo_price === 'string' 
+                          <PricePipe value={typeof viewingOrder.cargo_price === 'string' 
                             ? parseFloat(viewingOrder.cargo_price) 
-                            : viewingOrder.cargo_price} ₽
+                            : viewingOrder.cargo_price} suffix="₽" />
                         </span>
                       </div>
                     )}
@@ -1082,9 +1089,9 @@ export function OrderDataTable() {
                           Скидка по промокоду:
                         </span>
                         <span className="text-sm text-red-600">
-                          -{typeof viewingOrder.promo_price === 'string' 
+                          -<PricePipe value={typeof viewingOrder.promo_price === 'string' 
                             ? parseFloat(viewingOrder.promo_price) 
-                            : viewingOrder.promo_price} ₽
+                            : viewingOrder.promo_price} suffix="₽" />
                         </span>
                       </div>
                     )}
@@ -1092,9 +1099,9 @@ export function OrderDataTable() {
                     <div className="flex justify-between">
                       <span className="font-medium">Итого:</span>
                       <span className="font-bold text-green-600">
-                        {typeof viewingOrder.total_price === 'string' 
+                        <PricePipe value={typeof viewingOrder.total_price === 'string' 
                           ? parseFloat(viewingOrder.total_price) 
-                          : viewingOrder.total_price} ₽
+                          : viewingOrder.total_price} suffix="₽" />
                       </span>
                     </div>
                   </CardContent>
@@ -1128,9 +1135,9 @@ export function OrderDataTable() {
                                   )}
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">{azot.total_price} ₽</div>
+                                  <div className="text-sm font-medium"><PricePipe value={azot.total_price} suffix="₽" /></div>
                                   <div className="text-xs text-muted-foreground">
-                                    {azot.price} ₽ за штуку
+                                    <PricePipe value={azot.price} suffix="₽" /> за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1155,9 +1162,9 @@ export function OrderDataTable() {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">{accessory.total_price} ₽</div>
+                                  <div className="text-sm font-medium"><PricePipe value={accessory.total_price} suffix="₽" /></div>
                                   <div className="text-xs text-muted-foreground">
-                                    {accessory.price} ₽ за штуку
+                                    <PricePipe value={accessory.price} suffix="₽" /> за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1182,9 +1189,9 @@ export function OrderDataTable() {
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-medium">{service.total_price} ₽</div>
+                                  <div className="text-sm font-medium"><PricePipe value={service.total_price} suffix="₽" /></div>
                                   <div className="text-xs text-muted-foreground">
-                                    {service.price} ₽ за штуку
+                                    <PricePipe value={service.price} suffix="₽" /> за штуку
                                   </div>
                                 </div>
                               </div>
@@ -1239,7 +1246,7 @@ export function OrderDataTable() {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Обновить статус заказа #{editingOrder?.id}</DrawerTitle>
+            <DrawerTitle>Обновить статус заказа #{editingOrder?.order_number}</DrawerTitle>
             <DrawerDescription>Изменить статус заказа и способ оплаты</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 p-4">

@@ -54,6 +54,7 @@ import { DropdownMenuContent } from "@/components/ui/dropdown-menu"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { NumericFormat } from 'react-number-format';
 
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -75,6 +76,8 @@ import {
 } from "@tabler/icons-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/api"
+import PricePipe from "@/lib/price"
+import { cn } from "@/lib/utils"
 
 // Promocode schema
 const promocodeSchema = z.object({
@@ -219,7 +222,7 @@ const columns: ColumnDef<Promocode>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-semibold text-green-600">
-        {typeof row.original.amount === 'string' ? parseFloat(row.original.amount).toFixed(0) : row.original.amount.toFixed(0)} ₽
+        <PricePipe value={typeof row.original.amount === 'string' ? parseFloat(row.original.amount).toFixed(0) : row.original.amount.toFixed(0)} suffix="₽" />
       </div>
     ),
     enableSorting: true,
@@ -249,7 +252,7 @@ const columns: ColumnDef<Promocode>[] = [
       if (type === "countable") {
         return (
           <div className="text-sm">
-            <div className="font-medium">{used_count} / {countable || 0}</div>
+            <div className="font-medium"><PricePipe value={used_count} suffix="" /> / <PricePipe value={countable || 0} suffix="" /></div>
             <div className="text-muted-foreground">использовано</div>
           </div>
         );
@@ -773,13 +776,22 @@ export function PromocodeDataTable() {
             
             <div className="flex flex-col gap-2">
               <Label htmlFor="amount">Сумма *</Label>
-              <Input 
-                id="amount" 
-                type="number" 
-                step="0.01" 
-                {...form.register("amount", { valueAsNumber: true })} 
-                placeholder="0.00" 
-              />
+              <NumericFormat
+                  value={form.watch("amount")}
+                  thousandSeparator=" "
+                  decimalSeparator="."
+                  decimalScale={2}
+                  allowNegative={false}
+                  placeholder="0.00"
+                  onValueChange={(values) => {
+                    form.setValue("amount", values.floatValue ?? 0);
+                  }}
+                  className={cn(
+                    "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                    "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                  )}
+                />
               {form.formState.errors.amount && (
                 <p className="text-destructive text-sm">{form.formState.errors.amount.message}</p>
               )}
@@ -818,12 +830,21 @@ export function PromocodeDataTable() {
             {selectedType === "countable" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="countable">Лимит использований *</Label>
-                <Input 
-                  id="countable" 
-                  type="number" 
-                  min="1"
-                  {...form.register("countable", { valueAsNumber: true })} 
-                  placeholder="Введите лимит использований (например, 100)" 
+                <NumericFormat
+                  value={form.watch("countable")}
+                  thousandSeparator=" "
+                  decimalSeparator="."
+                  decimalScale={2}
+                  allowNegative={false}
+                  placeholder="Введите лимит использований (например, 100)"
+                  onValueChange={(values) => {
+                    form.setValue("countable", values.floatValue ?? 0);
+                  }}
+                  className={cn(
+                    "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                    "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                  )}
                 />
                 {form.formState.errors.countable && (
                   <p className="text-destructive text-sm">{form.formState.errors.countable.message}</p>

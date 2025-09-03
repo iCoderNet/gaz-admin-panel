@@ -74,6 +74,9 @@ import {
 } from "@tabler/icons-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/api"
+import PricePipe from "@/lib/price"
+import { NumericFormat } from "react-number-format"
+import { cn } from "@/lib/utils"
 
 // Accessory schema
 const accessorySchema = z.object({
@@ -229,7 +232,7 @@ const columns: ColumnDef<Accessory>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-medium">
-        {typeof row.original.price === 'string' ? parseFloat(row.original.price).toFixed(0) : row.original.price.toFixed(0)} ₽
+        <PricePipe value={typeof row.original.price === 'string' ? parseFloat(row.original.price).toFixed(0) : row.original.price.toFixed(0)} suffix="₽" />
       </div>
     ),
     enableSorting: true,
@@ -766,12 +769,21 @@ export function AccessoryDataTable() {
             
             <div className="flex flex-col gap-2">
               <Label htmlFor="price">Цена *</Label>
-              <Input 
-                id="price" 
-                type="number" 
-                step="0.01" 
-                {...form.register("price", { valueAsNumber: true })} 
-                placeholder="0" 
+              <NumericFormat
+                value={form.watch("price")}
+                thousandSeparator=" "
+                decimalSeparator="."
+                decimalScale={2}
+                allowNegative={false}
+                placeholder="0"
+                onValueChange={(values) => {
+                  form.setValue("price", values.floatValue ?? 0);
+                }}
+                className={cn(
+                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                )}
               />
               {form.formState.errors.price && (
                 <p className="text-destructive text-sm">{form.formState.errors.price.message}</p>

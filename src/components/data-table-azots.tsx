@@ -80,6 +80,9 @@ import {
 } from "@tabler/icons-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/api"
+import PricePipe from "@/lib/price"
+import { NumericFormat } from "react-number-format"
+import { cn } from "@/lib/utils"
 
 // Price Type schema
 const priceTypeSchema = z.object({
@@ -263,7 +266,7 @@ const columns: ColumnDef<Azot>[] = [
             <div className="flex flex-wrap gap-1">
               {priceTypes.slice(0, 2).map((pt, i) => (
                 <Badge key={i} variant="secondary" className="text-xs">
-                  {pt.name}: {pt.price} ₽
+                  {pt.name}: <PricePipe value={pt.price} suffix="₽" />
                 </Badge>
               ))}
               {priceTypes.length > 2 && (
@@ -1009,13 +1012,22 @@ export function AzotDataTable() {
                             </Label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"> ₽</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                {...form.register(`price_types.${index}.price`)}
-                                placeholder="0.00"
-                                className="pl-8"
+                              <NumericFormat
+                                value={form.watch(`price_types.${index}.price`)}
+                                thousandSeparator=" "
+                                decimalSeparator="."
+                                decimalScale={2}
+                                allowNegative={false}
+                                placeholder="0"
+                                onValueChange={(values) => {
+                                  form.setValue(`price_types.${index}.price`, values.floatValue ?? 0);
+                                }}
+                                className={cn(
+                                  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                  "pl-8"
+                                )}
                               />
                             </div>
                             {form.formState.errors.price_types?.[index]?.price && (
