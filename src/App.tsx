@@ -13,6 +13,7 @@ import Promocodes from '@/pages/Promocodes';
 import TgMessages from '@/pages/TgMessages';
 import Orders from '@/pages/Orders';
 import SettingsPage from './pages/Settings';
+import Requests from './pages/Requests';
 // import Orders from '@/pages/Orders';
 // import Services from '@/pages/Services';
 // import Accessories from '@/pages/Accessories';
@@ -111,6 +112,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <SettingsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            /> 
+            <Route
+              path="/requests"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Requests />
                   </Layout>
                 </ProtectedRoute>
               }

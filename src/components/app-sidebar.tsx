@@ -10,7 +10,8 @@ import {
   IconUsers,
   IconGift,
   IconSend,
-  IconBasketDollar
+  IconBasketDollar,
+  IconPhoneCall
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -46,6 +47,11 @@ const data = {
       title: "Заказы",
       url: "/orders",
       icon: IconBasketDollar,
+    },
+    {
+      title: "Обратный звонок",
+      url: "/requests",
+      icon: IconPhoneCall,
     },
     {
       title: "Азот",

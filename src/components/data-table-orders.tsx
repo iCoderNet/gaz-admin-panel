@@ -257,7 +257,7 @@ const orderSchema = z.object({
   phone: z.string().nullable().optional(),
   address: z.string().nullable().optional(),
   comment: z.string().nullable().optional(),
-  status: z.enum(["new", "pending", "accepted", "rejected", "completed"]),
+  status: z.enum(["new", "pending", "accepted", "rejected", "completed", "deleted"]),
   status_text: z.string().optional(),
   created_at: z.string().optional().nullable(),
   updated_at: z.string().optional().nullable(),
