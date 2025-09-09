@@ -283,9 +283,9 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label htmlFor="require_phone_on_order">Требовать номер телефона</Label>
+                      <Label htmlFor="require_phone_on_order">Включить раздел обратного вызова</Label>
                       <p className="text-sm text-muted-foreground">
-                        Клиенты должны указывать номер телефона при заказе
+                        Клиенты могут подать заявку на обратный звонок
                       </p>
                     </div>
                     <Switch
