@@ -263,7 +263,7 @@ const columns: ColumnDef<Service>[] = [
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
-            onClick={() => globalHandleDelete(row.original.id!)}
+            onClick={(e) => {e.stopPropagation(); globalHandleDelete(row.original.id!)}}
           >
             Удалить
           </DropdownMenuItem>
