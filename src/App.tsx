@@ -14,49 +14,48 @@ import TgMessages from '@/pages/TgMessages';
 import Orders from '@/pages/Orders';
 import SettingsPage from './pages/Settings';
 import Requests from './pages/Requests';
-// import Orders from '@/pages/Orders';
-// import Services from '@/pages/Services';
-// import Accessories from '@/pages/Accessories';
+import RouletteItems from './pages/RouletteItems';
+import RouletteHistory from './pages/RouletteHistory';
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/users"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Users />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/azots"
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Azots />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Users />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/azots"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Azots />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/orders"
               element={
                 <ProtectedRoute>
@@ -115,7 +114,7 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               }
-            /> 
+            />
             <Route
               path="/requests"
               element={
@@ -125,9 +124,29 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               }
-            /> 
-            </Routes>
-          </Router>
+            />
+            <Route
+              path="/roulette"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RouletteItems />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roulette/history"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RouletteHistory />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   );

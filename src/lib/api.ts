@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-new.botpl.ru/api/v1';
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-new.botpl.ru/api/v1';
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://api.tgbotbuyss.ru/api/v1';
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -84,6 +84,21 @@ export const telegramMessagesAPI = {
   create: (data: any) => api.post('/tg-messages', data),
 };
 
-// Boshqa API funksiyalari...
+export const rouletteAPI = {
+  // Admin: Ruletka elementlari CRUD
+  getAll: (params?: any) => api.get('/roulette-items', { params }),
+  getById: (id: number) => api.get(`/roulette-items/${id}`),
+  create: (data: any) => api.post('/roulette-items', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  update: (id: number, data: any) => api.post(`/roulette-items/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  delete: (id: number) => api.delete(`/roulette-items/${id}`),
+
+  // Admin: Tarix va statistika
+  getHistory: (params?: any) => api.get('/roulette/history', { params }),
+  getStatistics: () => api.get('/roulette/statistics'),
+};
 
 export default api;

@@ -27,6 +27,8 @@ const settingsSchema = z.object({
   bot_token: z.string().default("TOKEN"),
   order_notification: z.string().default("Новый заказ создан ✅"),
   chat_id: z.string().default("ID NUMBER"),
+  enable_roulette: z.boolean().default(false),
+  roulette_frequency: z.enum(["per_order", "daily"]).default("per_order"),
 })
 
 type Settings = z.infer<typeof settingsSchema>
@@ -48,6 +50,8 @@ export default function SettingsPage() {
       bot_token: "TOKEN",
       order_notification: "Новый заказ создан ✅",
       chat_id: "ID NUMBER",
+      enable_roulette: false,
+      roulette_frequency: "per_order" as "per_order" | "daily",
     }
   })
 
@@ -56,12 +60,12 @@ export default function SettingsPage() {
     try {
       setLoading(true)
       const response = await api.get("/settings")
-      
+
       if (response.data.success) {
         const settingsData = response.data.data
         setSettings(settingsData)
         form.reset(settingsData)
-        
+
         if (settingsData.site_logo) {
           setLogoPreview(settingsData.site_logo)
         }
@@ -107,12 +111,12 @@ export default function SettingsPage() {
     try {
       setSaving(true)
       console.log(data);
-      
+
       const formData = new FormData()
       Object.entries(data).forEach(([key, value]) => {
         if (key === "site_logo" && value instanceof File) {
           formData.append(key, value)
-        } else if (key === "enable_promocode" || key === "require_phone_on_order") {
+        } else if (key === "enable_promocode" || key === "require_phone_on_order" || key === "enable_roulette") {
           formData.append(key, value ? "1" : "0")
         } else if (key === "cargo_price") {
           formData.append(key, value.toString())
@@ -291,7 +295,7 @@ export default function SettingsPage() {
                     <Switch
                       id="require_phone_on_order"
                       checked={form.watch("require_phone_on_order")}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         form.setValue("require_phone_on_order", checked, { shouldValidate: true, shouldDirty: true })
                       }
                     />
@@ -307,11 +311,59 @@ export default function SettingsPage() {
                     <Switch
                       id="enable_promocode"
                       checked={form.watch("enable_promocode")}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         form.setValue("enable_promocode", checked, { shouldValidate: true, shouldDirty: true })
                       }
                     />
                   </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="enable_roulette">Включить рулетку</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Разрешить клиентам крутить рулетку после заказа
+                      </p>
+                    </div>
+                    <Switch
+                      id="enable_roulette"
+                      checked={form.watch("enable_roulette")}
+                      onCheckedChange={(checked) =>
+                        form.setValue("enable_roulette", checked, { shouldValidate: true, shouldDirty: true })
+                      }
+                    />
+                  </div>
+
+                  {form.watch("enable_roulette") && (
+                    <div className="space-y-2 pl-4 border-l-2">
+                      <Label>Частота рулетки</Label>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="per_order"
+                            value="per_order"
+                            checked={form.watch("roulette_frequency") === "per_order"}
+                            onChange={() => form.setValue("roulette_frequency", "per_order")}
+                          />
+                          <Label htmlFor="per_order" className="font-normal cursor-pointer">
+                            После каждого заказа
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="daily"
+                            value="daily"
+                            checked={form.watch("roulette_frequency") === "daily"}
+                            onChange={() => form.setValue("roulette_frequency", "daily")}
+                          />
+                          <Label htmlFor="daily" className="font-normal cursor-pointer">
+                            Один раз в день
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -387,7 +439,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="pt-4">
                     <p className="text-sm text-muted-foreground">
                       Тема управляет цветовой схемой интерфейса приложения.
@@ -396,7 +448,7 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Предпросмотр</CardTitle>

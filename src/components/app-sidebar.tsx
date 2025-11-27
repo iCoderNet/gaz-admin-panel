@@ -11,7 +11,8 @@ import {
   IconGift,
   IconSend,
   IconBasketDollar,
-  IconPhoneCall
+  IconPhoneCall,
+  IconWheel,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -72,6 +73,21 @@ const data = {
       title: "Промокоды",
       url: "/promocodes",
       icon: IconGift,
+    },
+    {
+      title: "Рулетка",
+      url: "/roulette",
+      icon: IconWheel,
+      items: [
+        {
+          title: "Элементы",
+          url: "/roulette",
+        },
+        {
+          title: "История",
+          url: "/roulette/history",
+        },
+      ],
     },
     {
       title: "Отправить сообщения",
