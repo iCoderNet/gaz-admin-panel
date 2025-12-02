@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { Badge } from "@/components/ui/badge"
 import { IconPlus, IconPencil, IconTrash, IconPhoto } from "@tabler/icons-react"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { rouletteAPI } from "@/lib/api"
 import api from "@/lib/api"
 
@@ -40,6 +41,7 @@ export default function DataTableRouletteItems() {
     const [loading, setLoading] = React.useState(false)
     const [drawerOpen, setDrawerOpen] = React.useState(false)
     const [editingItem, setEditingItem] = React.useState<RouletteItem | null>(null)
+    const isMobile = useIsMobile()
 
     // Form state
     const [formData, setFormData] = React.useState({
@@ -84,7 +86,7 @@ export default function DataTableRouletteItems() {
         const data = new FormData()
         data.append("title", formData.title)
         if (formData.description) data.append("description", formData.description)
-        if (formData.accessory_id) data.append("accessory_id", formData.accessory_id)
+        if (formData.accessory_id && formData.accessory_id !== "null") data.append("accessory_id", formData.accessory_id)
         data.append("probability", formData.probability)
         data.append("is_active", formData.is_active ? "1" : "0")
         if (formData.image) data.append("image", formData.image)
@@ -216,7 +218,7 @@ export default function DataTableRouletteItems() {
                 </Table>
             </div>
 
-            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={isMobile ? "bottom" : "right"}>
                 <DrawerContent>
                     <DrawerHeader>
                         <DrawerTitle>{editingItem ? "Редактировать элемент" : "Создать элемент"}</DrawerTitle>

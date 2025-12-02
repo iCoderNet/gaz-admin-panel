@@ -80,6 +80,7 @@ import {
   IconEye,
   IconPencil,
   IconCreditCard,
+  IconGift,
 } from "@tabler/icons-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import api from "@/lib/api"
@@ -217,6 +218,15 @@ const promocodeSchema = z.object({
   type: z.string(),
 })
 
+const rouletteSpinSchema = z.object({
+  id: z.number(),
+  roulette_item: z.object({
+    id: z.number(),
+    title: z.string(),
+    image_url: z.string().nullable().optional(),
+  }).optional(),
+}).optional().nullable()
+
 const orderSchema = z.object({
   id: z.number().optional(),
   order_number: z.number(),
@@ -267,6 +277,7 @@ const orderSchema = z.object({
   azots: z.array(orderAzotSchema).optional(),
   accessories: z.array(orderAccessorySchema).optional(),
   services: z.array(orderServiceSchema).optional(),
+  roulette_spin: rouletteSpinSchema,
 })
 
 const orderFormSchema = orderSchema.extend({
@@ -301,9 +312,9 @@ type Order = z.infer<typeof orderSchema>
 type OrderFormData = z.infer<typeof orderFormSchema>
 
 // Global handlers for view, edit and delete
-let globalHandleView: (order: Order) => void = () => {};
-let globalHandleEdit: (order: Order) => void = () => {};
-let globalHandleDelete: (id: number) => void = () => {};
+let globalHandleView: (order: Order) => void = () => { };
+let globalHandleEdit: (order: Order) => void = () => { };
+let globalHandleDelete: (id: number) => void = () => { };
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -324,7 +335,7 @@ const getStatusColor = (status: string) => {
 
 const getPaymentTypeColor = (paymentType: string | null) => {
   if (!paymentType) return "bg-gray-100 text-gray-600 border-gray-300"
-  
+
   switch (paymentType.toLowerCase()) {
     case "nalichi":
     case "cash":
@@ -483,8 +494,8 @@ const columns: ColumnDef<Order>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-bold text-green-600">
-        <PricePipe value={typeof row.original.total_price === 'string' 
-          ? parseFloat(row.original.total_price) 
+        <PricePipe value={typeof row.original.total_price === 'string'
+          ? parseFloat(row.original.total_price)
           : row.original.total_price} suffix="₽" />
       </div>
     ),
@@ -646,12 +657,12 @@ export function OrderDataTable() {
 
         const response = await api.get("/orders", { params })
         const parsed = orderApiResponseSchema.safeParse(response.data)
-        
+
         if (!parsed.success) {
           console.error("Validation errors:", parsed.error.issues)
           throw new Error(`Invalid API response: ${JSON.stringify(parsed.error.format())}`)
         }
-        
+
         if (parsed.data.success) {
           setData(parsed.data.data.data)
           setTotalRows(parsed.data.data.total)
@@ -684,7 +695,7 @@ export function OrderDataTable() {
         console.log('Update response:', response.data);
         toast.success("Статус заказа успешно обновлен");
       }
-      
+
       setDrawerOpen(false);
       setEditingOrder(null);
       fetchOrders();
@@ -776,14 +787,14 @@ export function OrderDataTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id === "id" ? "ID Заказа" : 
-                     column.id === "user" ? "Клиент" :
-                     column.id === "status_text" ? "Статус" :
-                     column.id === "payment_type" ? "Оплата" :
-                     column.id === "all_price" ? "Подытог" :
-                     column.id === "total_price" ? "Итого" :
-                     column.id === "created_at" ? "Создан" :
-                     column.id.charAt(0).toUpperCase() + column.id.slice(1).replace('_', ' ')}
+                    {column.id === "id" ? "ID Заказа" :
+                      column.id === "user" ? "Клиент" :
+                        column.id === "status_text" ? "Статус" :
+                          column.id === "payment_type" ? "Оплата" :
+                            column.id === "all_price" ? "Подытог" :
+                              column.id === "total_price" ? "Итого" :
+                                column.id === "created_at" ? "Создан" :
+                                  column.id.charAt(0).toUpperCase() + column.id.slice(1).replace('_', ' ')}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
@@ -1064,8 +1075,8 @@ export function OrderDataTable() {
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Подытог:</span>
                       <span className="text-sm font-medium">
-                        <PricePipe value={typeof viewingOrder.all_price === 'string' 
-                          ? parseFloat(viewingOrder.all_price) 
+                        <PricePipe value={typeof viewingOrder.all_price === 'string'
+                          ? parseFloat(viewingOrder.all_price)
                           : viewingOrder.all_price} suffix="₽" />
                       </span>
                     </div>
@@ -1076,8 +1087,8 @@ export function OrderDataTable() {
                           Стоимость доставки:
                         </span>
                         <span className="text-sm">
-                          <PricePipe value={typeof viewingOrder.cargo_price === 'string' 
-                            ? parseFloat(viewingOrder.cargo_price) 
+                          <PricePipe value={typeof viewingOrder.cargo_price === 'string'
+                            ? parseFloat(viewingOrder.cargo_price)
                             : viewingOrder.cargo_price} suffix="₽" />
                         </span>
                       </div>
@@ -1089,8 +1100,8 @@ export function OrderDataTable() {
                           Скидка по промокоду:
                         </span>
                         <span className="text-sm text-red-600">
-                          -<PricePipe value={typeof viewingOrder.promo_price === 'string' 
-                            ? parseFloat(viewingOrder.promo_price) 
+                          -<PricePipe value={typeof viewingOrder.promo_price === 'string'
+                            ? parseFloat(viewingOrder.promo_price)
                             : viewingOrder.promo_price} suffix="₽" />
                         </span>
                       </div>
@@ -1099,8 +1110,8 @@ export function OrderDataTable() {
                     <div className="flex justify-between">
                       <span className="font-medium">Итого:</span>
                       <span className="font-bold text-green-600">
-                        <PricePipe value={typeof viewingOrder.total_price === 'string' 
-                          ? parseFloat(viewingOrder.total_price) 
+                        <PricePipe value={typeof viewingOrder.total_price === 'string'
+                          ? parseFloat(viewingOrder.total_price)
                           : viewingOrder.total_price} suffix="₽" />
                       </span>
                     </div>
@@ -1225,6 +1236,41 @@ export function OrderDataTable() {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Roulette Prize */}
+                {viewingOrder.roulette_spin && viewingOrder.roulette_spin.roulette_item && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <IconGift className="h-5 w-5 text-purple-600" />
+                        Выигрыш в рулетке
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        {viewingOrder.roulette_spin.roulette_item.image_url ? (
+                          <img
+                            src={viewingOrder.roulette_spin.roulette_item.image_url}
+                            alt={viewingOrder.roulette_spin.roulette_item.title}
+                            className="w-12 h-12 object-cover rounded-md bg-white"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-purple-200 rounded-md flex items-center justify-center">
+                            <IconGift className="h-6 w-6 text-purple-600" />
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium text-sm text-purple-900">
+                            {viewingOrder.roulette_spin.roulette_item.title}
+                          </div>
+                          <div className="text-xs text-purple-700">
+                            Пользователь выиграл этот приз при оформлении заказа
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </div>
@@ -1261,11 +1307,11 @@ export function OrderDataTable() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="new">Не Оформлен</SelectItem>
-                      <SelectItem value="pending">Оформлен</SelectItem>
-                      <SelectItem value="accepted">Принято</SelectItem>
-                      <SelectItem value="rejected">Отклонено</SelectItem>
-                      <SelectItem value="completed">Завершено</SelectItem>
+                    <SelectItem value="new">Не Оформлен</SelectItem>
+                    <SelectItem value="pending">Оформлен</SelectItem>
+                    <SelectItem value="accepted">Принято</SelectItem>
+                    <SelectItem value="rejected">Отклонено</SelectItem>
+                    <SelectItem value="completed">Завершено</SelectItem>
 
                   </SelectContent>
                 </Select>
@@ -1273,7 +1319,7 @@ export function OrderDataTable() {
                   <p className="text-destructive text-sm">{form.formState.errors.status.message}</p>
                 )}
               </div>
-              
+
               <div className="flex flex-col gap-2">
                 <Label htmlFor="payment_type">Тип оплаты</Label>
                 <input
