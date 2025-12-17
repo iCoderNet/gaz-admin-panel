@@ -16,6 +16,7 @@ import SettingsPage from './pages/Settings';
 import Requests from './pages/Requests';
 import RouletteItems from './pages/RouletteItems';
 import RouletteHistory from './pages/RouletteHistory';
+import ForcedRouletteRules from './pages/ForcedRouletteRules';
 
 function App() {
   return (
@@ -136,11 +137,21 @@ function App() {
               }
             />
             <Route
-              path="/roulette/history"
+              path="/roulette-history"
               element={
                 <ProtectedRoute>
                   <Layout>
                     <RouletteHistory />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roulette/forced-roulette-rules"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ForcedRouletteRules />
                   </Layout>
                 </ProtectedRoute>
               }
