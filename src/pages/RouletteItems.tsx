@@ -12,9 +12,16 @@ export default function RouletteItems() {
 
                 <div className='flex gap-2'>
                     <Button
+                        variant="outline"
+                        onClick={() => navigate("/roulette/price-types")}
+                    >
+                        Настройки типов оплат
+                    </Button>
+                    <Button
+                        variant="outline"
                         onClick={() => navigate("/roulette/forced-roulette-rules")}
                     >
-                        Принудительные призы рулетки
+                        Принудительные призы
                     </Button>
                     <Button
                         onClick={() => navigate("/roulette/history")}

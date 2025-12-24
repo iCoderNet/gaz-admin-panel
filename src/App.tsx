@@ -17,6 +17,7 @@ import Requests from './pages/Requests';
 import RouletteItems from './pages/RouletteItems';
 import RouletteHistory from './pages/RouletteHistory';
 import ForcedRouletteRules from './pages/ForcedRouletteRules';
+import RoulettePriceTypes from './pages/RoulettePriceTypes';
 
 function App() {
   return (
@@ -152,6 +153,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <ForcedRouletteRules />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roulette/price-types"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RoulettePriceTypes />
                   </Layout>
                 </ProtectedRoute>
               }
